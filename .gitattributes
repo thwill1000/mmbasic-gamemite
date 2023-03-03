@@ -1,0 +1,4 @@
+*.bas linguist-language=BASIC
+*.bpp linguist-language=BASIC
+*.inc linguist-language=BASIC
+*.ipp linguist-language=BASIC
