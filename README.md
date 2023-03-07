@@ -35,7 +35,7 @@ The "PicoGAME LCD" is a handheld videogame based on the Raspberry Pico microcont
 
 ## Software (Games)
 
- * [Lazer Cycle](software/lazer-cycle-pglcd-095.bas)
+ * [Lazer Cycle](software/lazer-cycle-pglcd-100.bas)
  * *More coming soon ... hopefully*
 
 ## FAQ

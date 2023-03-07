@@ -1,4 +1,4 @@
-' Transpiled on 04-03-2023 14:15:10
+' Transpiled on 06-03-2023 14:09:17
 
 ' Copyright (c) 2022-2023 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
@@ -11,17 +11,18 @@ Option Explicit On
 
 ' Preprocessor flag PICOGAME_LCD defined
 
-' BEGIN:     #Include "ctrl.ipp" -----------------------------------------------
-' Copyright (c) 2022 Thomas Hugo Williams
+' BEGIN:     #Include "ctrl.inc" -----------------------------------------------
+' Copyright (c) 2022-2023 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
 '
 ' MMBasic Controller Library
-'
+
 ' Preprocessor flag PICOMITE defined
+' Preprocessor flag CTRL_ONE_PLAYER defined
 ' Preprocessor flag CTRL_NO_SNES defined
 ' Preprocessor flag CTRL_USE_INKEY defined
 
-Const ctrl.VERSION = 906  ' 0.9.6
+Const ctrl.VERSION = 907  ' 0.9.7
 
 ' Button values as returned by controller driver subroutines.
 Const ctrl.R      = &h01
@@ -63,6 +64,14 @@ Dim ctrl.key_map%(31 + Mm.Info(Option Base))
 Sub ctrl.init_keys(period%, nbr%)
   ctrl.term_keys()
   On Key ctrl.on_key()
+  ' Read Save
+  ' Restore ctrl.scan_map_data
+  ' Local i%
+  ' For i% = Bound(ctrl.scan_map%(), 0) To Bound(ctrl.scan_map%(), 1)
+  '   Read ctrl.scan_map%(i%)
+  ' Next
+  ' Read Restore
+  ' On Ps2 ctrl.on_ps2()
 End Sub
 
 ' TODO: use the 'lower-case' character for all keys, not just letters.
@@ -72,14 +81,15 @@ End Sub
 
 ' Terminates keyboard reading.
 Sub ctrl.term_keys()
-  On Key 0
+   On Key 0
+  ' On Ps2 0
   Memory Set Peek(VarAddr ctrl.key_map%()), 0, 256
   Do While Inkey$ <> "" : Loop
 End Sub
 
 Function ctrl.keydown%(i%)
   ctrl.keydown% = Peek(Var ctrl.key_map%(), i%)
-  Poke Var ctrl.key_map%(), i%, 0
+   Poke Var ctrl.key_map%(), i%, 0
 End Function
 
 Function ctrl.poll_multiple$(drivers$(), mask%, duration%)
@@ -174,23 +184,6 @@ Sub atari_a(x%)
   End Select
 End Sub
 
-' Atari joystick on PicoGAME Port B.
-Sub atari_b(x%)
-  Select Case x%
-    Case >= 0
-      x% =    Not Pin(GP15) * ctrl.A
-      Inc x%, Not Pin(GP28) * ctrl.UP
-      Inc x%, Not Pin(GP4)  * ctrl.DOWN
-      Inc x%, Not Pin(GP5)  * ctrl.LEFT
-      Inc x%, Not Pin(GP22) * ctrl.RIGHT
-      Exit Sub
-    Case ctrl.OPEN
-      SetPin GP4, DIn : SetPin GP5, DIn : SetPin GP15, DIn : SetPin GP22, DIn : SetPin GP28, DIn
-    Case ctrl.CLOSE, ctrl.SOFT_CLOSE
-      SetPin GP4, Off : SetPin GP5, Off : SetPin GP15, Off : SetPin GP22, Off : SetPin GP28, Off
-    End Select
-End Sub
-
 ' Reads port A connected to a NES gamepad.
 '
 ' Note that the extra pulse after reading bit 7 (Right) should not be necessary,
@@ -219,36 +212,11 @@ Sub nes_a(x%)
   End Select
 End Sub
 
-' NES gamepad on PicoGAME Port B.
-'
-'   GP5: Latch, GP22: Clock, GP4: Data
-Sub nes_b(x%)
-  Select Case x%
-    Case >= 0
-      Pulse GP5, ctrl.PULSE
-      x% =    Not Pin(GP4) * ctrl.A      : Pulse GP22, ctrl.PULSE
-      Inc x%, Not Pin(GP4) * ctrl.B      : Pulse GP22, ctrl.PULSE
-      Inc x%, Not Pin(GP4) * ctrl.SELECT : Pulse GP22, ctrl.PULSE
-      Inc x%, Not Pin(GP4) * ctrl.START  : Pulse GP22, ctrl.PULSE
-      Inc x%, Not Pin(GP4) * ctrl.UP     : Pulse GP22, ctrl.PULSE
-      Inc x%, Not Pin(GP4) * ctrl.DOWN   : Pulse GP22, ctrl.PULSE
-      Inc x%, Not Pin(GP4) * ctrl.LEFT   : Pulse GP22, ctrl.PULSE
-      Inc x%, Not Pin(GP4) * ctrl.RIGHT  : Pulse GP22, ctrl.PULSE
-      Exit Sub
-    Case ctrl.OPEN
-      SetPin GP4, Din : SetPin GP5, Dout : SetPin GP22, Dout
-      Pin(GP5) = 0 : Pin(GP22) = 0
-      nes_b(0) ' Discard the first reading.
-    Case ctrl.CLOSE, ctrl.SOFT_CLOSE
-      SetPin GP4, Off : SetPin GP5, Off : SetPin GP22, Off
-  End Select
-End Sub
-
-' END:       #Include "src/ctrl.ipp" -------------------------------------------
+' END:       #Include "src/ctrl.inc" -------------------------------------------
 ' BEGIN:     #Include "utility.inc" --------------------------------------------
-' Copyright (c) 2020-22 Thomas Hugo Williams
+' Copyright (c) 2020-2023 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
-' For MMBasic 5.07.05
+' For MMBasic 5.07.06
 
 ' Utility code lifted from 'splib'.
 
@@ -279,6 +247,24 @@ Function str.lpad$(s$, x%)
   If Len(s$) < x% Then str.lpad$ = Space$(x% - Len(s$)) + s$
 End Function
 
+' Gets a string "quoted" with given characters.
+'
+' @param  s$      the string.
+' @param  begin$  the character to put at the start, defaults to double-quote.
+' @param  end$    the character to put at the end, defaults to double-quote.
+' @return         the "quoted" string.
+Function str.quote$(s$, begin$, end$)
+  Local begin_$ = Choice(begin$ = "", Chr$(34), Left$(begin$, 1))
+  Local end_$ = Choice(end$ = "", begin_$, Left$(end$, 1))
+  str.quote$ = begin_$ + s$ + end_$
+End Function
+
+' Gets a string padded to a given width with spaces to the right.
+'
+' @param  s$  the string.
+' @param  w%  the width.
+' @return     the padded string.
+'             If Len(s$) > w% then returns the unpadded string.
 Function str.rpad$(s$, x%)
   str.rpad$ = s$
   If Len(s$) < x% Then str.rpad$ = s$ + Space$(x% - Len(s$))
@@ -295,11 +281,18 @@ Function str.trim$(s$)
   Next
   If en% >= st% Then str.trim$ = Mid$(s$, st%, en% - st% + 1)
 End Function
+
+Function format_version$(version%)
+  Local major% = version% \ 10000
+  Local minor% = (version% - major% * 10000) \ 100
+  Local micro% = version% - major% * 10000 - minor% * 100
+  format_version$ = Str$(major%) + "." + Str$(minor%) + "." + Str$(micro%)
+End Function
 ' END:       #Include "src/utility.inc" ----------------------------------------
 ' BEGIN:     #Include "sound.inc" ----------------------------------------------
-' Copyright (c) 2022 Thomas Hugo Williams
+' Copyright (c) 2022-2023 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
-' For MMBasic 5.07.05
+' For MMBasic 5.07.06
 
 ' Preprocessor flag SOUND_USE_PWM defined
 
@@ -383,8 +376,8 @@ End Sub
 
 ' Terminates sound engine.
 Sub sound.term()
-  Pwm 2, Off
-  Pwm 3, Off
+   Pwm 2, Off
+   Pwm 3, Off
 End Sub
 
 ' Enables/disables sound fx.
@@ -416,16 +409,16 @@ End Sub
 ' Stops music playing interrupt.
 Sub sound.stop_music()
   SetTick 0, 0, 1
-  Pwm 2, sound.F!(0), 0
+   Pwm 2, sound.F!(0), 0
 End Sub
 
 ' Called from interrupt to play next note of music.
 Sub sound.music_int()
   Local n% = Peek(Byte sound.music_ptr%)
   If n% < 255 Then
-    If n% = 0 Then n% = Peek(Byte sound.music_ptr% + 1)
-    If n% = 0 Then n% = Peek(Byte sound.music_ptr% + 2)
-    Pwm 2, sound.F!(n%), (n% > 0) * 2
+   If n% = 0 Then n% = Peek(Byte sound.music_ptr% + 1)
+   If n% = 0 Then n% = Peek(Byte sound.music_ptr% + 2)
+   Pwm 2, sound.F!(n%), (n% > 0) * 2
     Inc sound.music_ptr%, 3
     Exit Sub
   EndIf
@@ -459,7 +452,7 @@ End Sub
 Sub sound.fx_int()
   Local n% = Peek(Byte sound.fx_ptr%)
   If n% = 255 Then Exit Sub
-  Pwm 3, sound.F!(n%), (n% > 0) * 5
+   Pwm 3, sound.F!(n%), (n% > 0) * 5
   Inc sound.fx_ptr%
 End Sub
 
@@ -801,7 +794,7 @@ Function menu.show%(ui_ctrl$, ctrls$(), colours%())
   Next
   If count% = 0 Then menu.ctrls$(0) = ui_ctrl$
 
-  Text X_OFFSET%, Y_OFFSET% + 90, "Game Version " + VERSION$, "CM", 7, 1, Rgb(Cyan)
+  Text X_OFFSET%, Y_OFFSET% + 90, "Game Version " + format_version$(VERSION%), "CM", 7, 1, Rgb(Cyan)
 
   ctrl.init_keys()
   Call ui_ctrl$, ctrl.OPEN
@@ -979,7 +972,7 @@ Function menu.has_controller%(idx%, ctrl1$, ctrl2$)
 End Function
 ' END:       #Include "src/menu.inc" -------------------------------------------
 
-Const VERSION$ = "0.9.5"
+Const VERSION% = 10000 ' 1.0.0
 
 If InStr(Mm.Device$, "PicoMite") Then
   If Val(Mm.Info(CpuSpeed)) < 252000000 Then
@@ -1017,13 +1010,19 @@ Select Case Mm.Device$
 End Select
 
 If USE_PATH% Then
+  On Error Skip
+  MkDir Mm.Info(Path) + "high-scores"
   Const HIGHSCORE_FILENAME$ = Mm.Info(Path) + "high-scores/lazer-cycle.csv"
 Else
+  On Error Skip
+  MkDir "/high-scores"
   Const HIGHSCORE_FILENAME$ = "/high-scores/lazer-cycle.csv"
 EndIf
 
 If USE_MODE% Then Mode USE_MODE%
 If USE_PAGE_COPY% Then Page Write 1
+' Const WIDTH% = Mm.HRes \ 2
+' Const HEIGHT% = (Mm.VRes - 20) \ 2
 Const WIDTH% = Mm.HRes \ 3
 Const HEIGHT% = (Mm.VRes - 20) \ 3
 Const X_OFFSET% = MM.HRes \ 2
@@ -1043,6 +1042,7 @@ Dim NEXT_DIR%(7)        = (EAST%, NORTH%, WEST%, SOUTH%, EAST%, NORTH%, WEST%, S
 Dim SCORE_X%(3)         = (35, 105, 175, 245)
 Dim DIRECTIONS%(3)      = (-WIDTH%, 1, WIDTH%, -1)
 Dim COMPASS_TO_CTRL%(3) = (ctrl.UP, ctrl.RIGHT, ctrl.DOWN, ctrl.LEFT)
+' Dim FRAME_DURATIONS%(5) = (33, 30, 27, 24, 21, 18)
 Dim FRAME_DURATIONS%(5) = (42, 38, 34, 30, 26, 22)
 
 Dim ui_ctrl$ ' Controller driver for controlling the UI.
@@ -1162,7 +1162,13 @@ End Sub
 '                   0 if the duration expired.
 Function show_title%(duration%)
   Local platform$ = "Colour Maximite 2"
-  platform$ = "PicoGAME LCD"
+  Select Case Mm.Device$
+    Case "PicoMite"
+      platform$ = "PicoMite"
+      platform$ = "PicoGAME LCD"
+    Case "PicoMiteVGA"
+      platform$ = "PicoGAME VGA"
+  End Select
 
   Text X_OFFSET%, Y_OFFSET% - 27, "LAZER CYCLE", "CM", 1, 2, Rgb(White)
   Text X_OFFSET%, Y_OFFSET% - 10, platform$ + " Version", "CM", 7, 1, Rgb(Cyan)
@@ -1289,6 +1295,15 @@ Sub init_game(attract_mode%)
 End Sub
 
 Sub draw_arena()
+  ' Local a%, i%, j%
+  ' For i% = 0 To Bound(arena%(), 1) - 1
+  '   a% = arena%(i%)
+  '   If a% = 0 Then Continue For
+  '   For j% = 0 To 7
+  '     If Peek(Var a%, j%) <> 128 Then Continue For
+  '     Pixel 2 * (((i% * 8) Mod WIDTH%) + j%), 2 * ((i% * 8) \ WIDTH%), Rgb(Grey)
+  '   Next
+  ' Next
   Local x%
   For x% = 0 To (HEIGHT% * WIDTH%) - 1
     If Peek(Var arena%(), x%) <> 128 Then Continue For
@@ -1457,6 +1472,8 @@ End Sub
 
 ' Draw cycle if STATE_OK% or STATE_DYING%.
 Sub cycle.draw(idx%)
+  ' Local p% = cycle.pos%(idx%), n% = cycle.nxt%(idx%)
+  ' Line 2*(p% Mod WIDTH%), 2*(p%\WIDTH%), 2*(n% Mod WIDTH%), 2*(n%\WIDTH%), 1, cycle.colour%(idx%) * (cycle.state%(idx%) <> STATE_DYING%)
   Local p% = cycle.pos%(idx%), n% = cycle.nxt%(idx%), xn% = 3*(n% Mod WIDTH%), yn% = 3*(n%\WIDTH%)
   Local colour_% = cycle.colour%(idx%) * (cycle.state%(idx%) <> STATE_DYING%)
   Line 3*(p% Mod WIDTH%), 3*(p%\WIDTH%), xn%, yn%, 2, colour_%
