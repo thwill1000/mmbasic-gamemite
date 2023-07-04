@@ -10,32 +10,33 @@ Option Explicit 1
 
 '!define NO_INCLUDE_GUARDS
 
-#Include "software/splib/system.inc"
-#Include "software/splib/file.inc"
-#Include "software/splib/string.inc"
+#Include "src/splib/system.inc"
+#Include "src/splib/file.inc"
+#Include "src/splib/string.inc"
+
+Const BUILD_DIR$ = "build/pglcd"
+Const SOFTWARE_DIR$ = "/pico-game-lcd/software/"
+Const VERSION% = get_version%()
 
 main()
 End
 
 Sub main()
-  If Right$(Mm.Info$(Path), 15) <> "/pico-game-lcd/" Then Error "Invalid path"
-
-  Const version% = get_version%()
-  Const build_dir$ = "build/pglcd"
+  If Right$(Mm.Info$(Path), Len(SOFTWARE_DIR$)) <> SOFTWARE_DIR$ Then Error "Invalid path"
 
   ? "Creating directory:"
-  ? "  " + build_dir$
-  If file.exists%(build_dir$) Then
-    If file.delete%(build_dir$, 20) <> sys.SUCCESS Then Error sys.err$
+  ? "  " + BUILD_DIR$
+  If file.exists%(BUILD_DIR$) Then
+    If file.delete%(BUILD_DIR$, 20) <> sys.SUCCESS Then Error sys.err$
   EndIf
-  If file.mkdir%(build_dir$) <> sys.SUCCESS Then Error sys.err$
+  If file.mkdir%(BUILD_DIR$) <> sys.SUCCESS Then Error sys.err$
 
   ? "Transpiling and copying:"
   Local src$, dst$
   Do
     Read src$, dst$
     If Not Len(src$) Then Exit Do
-    dst$ = str.replace$(dst$, "${BUILD}", build_dir$)
+    dst$ = str.replace$(dst$, "${BUILD}", BUILD_DIR$)
     trans_and_copy(src$, dst$)
   Loop
 
@@ -46,7 +47,7 @@ Sub main()
 End Sub
 
 Function get_version%()
-  Open "software/startup.bas" For Input As #1
+  Open "src/startup.bas" For Input As #1
   Local i%, s$
   Do While Not Eof(#1)
     Line Input #1, s$
@@ -72,12 +73,12 @@ Sub trans_and_copy(src$, dst$)
   System cmd$
 End Sub
 
-Data "software/install-a.bas", "${BUILD}/install-a.bas"
-Data "software/startup.bas", "${BUILD}/startup.bas"
-Data "software/menu.bas", "${BUILD}/menu.bas"
-Data "../mmbasic-sptools/src/splib/examples/ctrl-demo-2.bas", "${BUILD}/ctrl-demo-2.bas"
-Data "../mmbasic-sptools/src/splib/examples/sound-demo.bas", "${BUILD}/sound-demo.bas"
-Data "../mmbasic-lazer-cycle/src/lazer-cycle.bas", "${BUILD}/lazer-cycle.bas"
-Data "../mmbasic-third-party/pico-vaders/pico-vaders.bas", "${BUILD}/pico-vaders.bas"
-Data "../mmbasic-third-party/3d-maze/3d-maze.bas", "${BUILD}/3d-maze.bas"
+Data "src/install-a.bas", "${BUILD}/install-a.bas"
+Data "src/startup.bas", "${BUILD}/startup.bas"
+Data "src/menu.bas", "${BUILD}/menu.bas"
+Data "../../mmbasic-sptools/src/splib/examples/ctrl-demo-2.bas", "${BUILD}/ctrl-demo-2.bas"
+Data "../../mmbasic-sptools/src/splib/examples/sound-demo.bas", "${BUILD}/sound-demo.bas"
+Data "../../mmbasic-lazer-cycle/src/lazer-cycle.bas", "${BUILD}/lazer-cycle.bas"
+Data "../../mmbasic-third-party/pico-vaders/pico-vaders.bas", "${BUILD}/pico-vaders.bas"
+Data "../../mmbasic-third-party/3d-maze/3d-maze.bas", "${BUILD}/3d-maze.bas"
 Data "", ""
