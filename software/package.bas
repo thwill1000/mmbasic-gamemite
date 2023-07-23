@@ -73,9 +73,10 @@ Sub trans_and_copy(src$, dst$)
   System cmd$
 End Sub
 
+Data "src/fm.bas", "${BUILD}/fm.bas"
 Data "src/install-a.bas", "${BUILD}/install-a.bas"
-Data "src/startup.bas", "${BUILD}/startup.bas"
 Data "src/menu.bas", "${BUILD}/menu.bas"
+Data "src/startup.bas", "${BUILD}/startup.bas"
 Data "../../mmbasic-sptools/src/splib/examples/ctrl-demo-2.bas", "${BUILD}/ctrl-demo-2.bas"
 Data "../../mmbasic-sptools/src/splib/examples/sound-demo.bas", "${BUILD}/sound-demo.bas"
 Data "../../mmbasic-lazer-cycle/src/lazer-cycle.bas", "${BUILD}/lazer-cycle.bas"

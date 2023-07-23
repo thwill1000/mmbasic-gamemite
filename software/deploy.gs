@@ -2,6 +2,7 @@ break
 rmkdir A:/pglcd
 xsend -t="-DPGLCD2" src/startup.bas A:/pglcd/startup.bas
 xsend -t="-DPGLCD2" src/menu.bas A:/pglcd/menu.bas
+xsend -t="-DPGLCD2" src/fm.bas A:/pglcd/fm.bas
 xsend -t="-DPGLCD2" ../../mmbasic-sptools/src/splib/examples/ctrl-demo-2.bas A:/pglcd/ctrl-demo-2.bas
 xsend -t="-DPGLCD2" ../../mmbasic-sptools/src/splib/examples/sound-demo.bas A:/pglcd/sound-demo.bas
 xsend -t="-DPGLCD2" ../../mmbasic-lazer-cycle/src/lazer-cycle.bas A:/pglcd/lazer-cycle.bas
