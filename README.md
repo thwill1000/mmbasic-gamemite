@@ -35,8 +35,8 @@ The "PicoGAME LCD" is a handheld videogame based on the Raspberry Pico microcont
 
 ## Firmware
 
-The PicoGAME LCD uses a beta version of the latest PicoMite/MMBasic firmware:
- * [PicoMite 5.07.08b8](https://github.com/thwill1000/pico-game-lcd/raw/develop/0.1.0/download/2023-07-05_185807_PicoMite.zip)
+The PicoGAME LCD uses a customised version of the latest beta PicoMite/MMBasic firmware:
+ * [PicoMite-pglcd-0.2.0.zip](https://github.com/thwill1000/pico-game-lcd/raw/develop/0.2.0/download/PicoMite-pglcd-0.2.0.zip) - derived from PicoMite 5.07.08b11
      * Copyright 2011-2023 Geoff Graham
      * Copyright 2016-2023 Peter Mather
 
@@ -54,10 +54,22 @@ Run the following commands at the MMBasic prompt to configure the system options
  OPTION LCDPANEL ILI9341,RLANDSCAPE,GP2,GP1,GP0
  ```
 
+### Differences from the standard PicoMite firmware
+
+The PicoGAME LCD firmware differs from the standard PicoMite firmware in the following ways:
+ - If a "sigbus" error occurs it does not clear `OPTION AUTORUN`.
+     - The standard PicoMite does this to prevent the Pico going into an unbreakable restart cycle should the program being `AUTORUN` throw such an error; the simple PicoGAME LCD "startup.bas" is hopefully error free.
+     -  Without this modification any "sigbus" error thrown will cause the PicoGAME LCD to reboot to a blank display that can only be restored by attaching a serial console and re-enabling `OPTION AUTORUN` as described in [Software](README.md#Software) below.
+
+ - If `OPTION LCDPANEL CONSOLE` is not set (the default) then the PicoGAME LCD will display any uncaught error on the LCD panel as well as the serial console.
+     - Without this modification any uncaught error will cause the PicoGAME LCD to appear to have hung; the fact that an error had occurred would only be visible on the serial console.
+
+NOTE: The current iteration of the PicoGAME LCD will also work with the standard PicoMite 5.07.08b8 (or later) firmware subject to the limitations addressed above.
+
 ## Software
 
 The standard PicoGAME LCD software pack can be downloaded from:
- *  [pglcd-0.1.0.zip](https://github.com/thwill1000/pico-game-lcd/raw/develop/0.1.0/download/pglcd-0.1.0.zip)
+ *  [pglcd-0.2.0.zip](https://github.com/thwill1000/pico-game-lcd/raw/develop/0.2.0/download/pglcd-0.2.0.zip)
 
 To install it on the PicoMite internal flash drive (A:/):
  1. Extract contents of zip file into the root of a FAT32 formatted SD card.
