@@ -35,7 +35,9 @@ EndIf
 Text 160, y%, "(c) 2023 Thomas Hugo Williams", CM
 Inc y%, 2 * Mm.Info(FontHeight)
 If Mm.Device$ = "PicoMite" Then Font 7
-Text 160, y%, "Powered by PicoMite MMBasic Version " + sys.format_version$(sys.FIRMWARE, 1), CM
+Dim title$ = "PicoMite MMBasic Version " + sys.format_version$(sys.FIRMWARE, 1)
+If Mm.Info$(Device X) = "PicoGAME LCD" Then Cat title$, " - PGLCD"
+Text 160, y%, title$, CM
 Inc y%, Mm.Info(FontHeight) + 1
 Text 160, y%, "Copyright 2011-2023 Geoff Graham", CM
 Inc y%, Mm.Info(FontHeight) + 1
