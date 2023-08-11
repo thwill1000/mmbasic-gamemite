@@ -6,7 +6,7 @@ Option Base 0
 Option Default None
 Option Explicit 1
 
-Const VERSION = 200 ' 0.2.0
+Const VERSION = 300 ' 0.3.0
 
 '!define NO_INCLUDE_GUARDS
 
