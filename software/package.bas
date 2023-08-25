@@ -82,4 +82,5 @@ Data "../../mmbasic-sptools/src/splib/examples/sound-demo.bas", "${BUILD}/sound-
 Data "../../mmbasic-lazer-cycle/src/lazer-cycle.bas", "${BUILD}/lazer-cycle.bas"
 Data "../../mmbasic-third-party/pico-vaders/pico-vaders.bas", "${BUILD}/pico-vaders.bas"
 Data "../../mmbasic-third-party/3d-maze/3d-maze.bas", "${BUILD}/3d-maze.bas"
+Data "../../cmm2-kingdom/src/kingdom.bas", "${BUILD}/kingdom.bas"
 Data "", ""

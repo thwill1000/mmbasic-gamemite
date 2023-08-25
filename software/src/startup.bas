@@ -21,7 +21,7 @@ Const VERSION = 300 ' 0.3.0
 Mode 7
 Cls
 Dim y% = 80
-Text 160, y%, "PicoGAME LCD v" + sys.format_version$(VERSION), CM
+Text 160, y%, "Game " + Chr$(&h9F) + " Mite v" + sys.format_version$(VERSION), CM
 Inc y%, Mm.Info(FontHeight) + 1
 
 If Mm.Device$ <> "PicoMite" Or ((sys.FIRMWARE < 5070808) And (sys.FIRMWARE <> 5070800)) Then

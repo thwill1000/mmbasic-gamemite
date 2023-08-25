@@ -144,18 +144,6 @@ Sub update_menu_data()
   num_pages% = num_files% \ FILES_PER_PAGE + ((num_files% Mod FILES_PER_PAGE) > 0)
 End Sub
 
-Sub keys_cursor_ext(x%)
-  If x% < 0 Then Exit Sub
-  x% =    ctrl.keydown%(32)  * ctrl.A ' Space
-  Inc x%, ctrl.keydown%(98)  * ctrl.B ' B
-  Inc x%, (ctrl.keydown%(101) Or ctrl.keydown%(113)) * ctrl.SELECT ' E or Q
-  Inc x%, ctrl.keydown%(115) * ctrl.START ' S
-  Inc x%, ctrl.keydown%(128) * ctrl.UP
-  Inc x%, ctrl.keydown%(129) * ctrl.DOWN
-  Inc x%, ctrl.keydown%(130) * ctrl.LEFT
-  Inc x%, ctrl.keydown%(131) * ctrl.RIGHT
-End Sub
-
 Sub menu_cb(cb_data$)
   Select Case Field$(cb_data$, 1, "|")
     Case "selection_changed"

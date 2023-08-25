@@ -8,6 +8,7 @@ xsend -t="-DPGLCD2" ../../mmbasic-sptools/src/splib/examples/sound-demo.bas A:/p
 xsend -t="-DPGLCD2" ../../mmbasic-lazer-cycle/src/lazer-cycle.bas A:/pglcd/lazer-cycle.bas
 xsend -t="-DPGLCD2" ../../mmbasic-third-party/pico-vaders/pico-vaders.bas A:/pglcd/pico-vaders.bas
 xsend -t="-DPGLCD2" ../../mmbasic-third-party/3d-maze/3d-maze.bas A:/pglcd/3d-maze.bas
+xsend -t="-DPGLCD2" ../../cmm2-kingdom/src/kingdom.bas A:/pglcd/kingdom.bas
 rex flash erase 1
 rex load "A:/pglcd/startup.bas"
 rex flash save 1
