@@ -1,50 +1,37 @@
+#!/usr/local/bin/mmbasic
+
 ' Copyright (c) 2023 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
 ' For MMB4L 0.6.0
 
-' Utility to create installation package for PicoGAME LCD.
+' Utility to create installation package for GameMite.
 
 Option Base 0
 Option Default None
 Option Explicit 1
 
-'!define NO_INCLUDE_GUARDS
-
 #Include "src/splib/system.inc"
 #Include "src/splib/file.inc"
 #Include "src/splib/string.inc"
 
-Const BUILD_DIR$ = "build/GameMite"
-Const SOFTWARE_DIR$ = "/pico-game-lcd/software/"
+Const NAME$ = "GameMite"
 Const VERSION% = get_version%()
+Const VERSION_STR$ = sys.format_version$(VERSION%)
+Const NAME_AND_VERSION$ = NAME$ + "-" + VERSION_STR$
+Const BUILD_DIR$ = "build/" + NAME_AND_VERSION$
+Const SOFTWARE_DIR$ = "/pico-game-lcd/software/"
+Const FIRMWARE_DIR$ = "../../picomite-firmware"
+Const UF2_FILE$ = NAME_AND_VERSION$ + ".uf2"
+Const ZIP_FILE$ = NAME_AND_VERSION$ + ".zip"
 
-main()
+If Right$(Mm.Info$(Path), Len(SOFTWARE_DIR$)) <> SOFTWARE_DIR$ Then Error "Invalid path"
+
+create_build_dir()
+build_firmware()
+build_software()
+create_archive()
+
 End
-
-Sub main()
-  If Right$(Mm.Info$(Path), Len(SOFTWARE_DIR$)) <> SOFTWARE_DIR$ Then Error "Invalid path"
-
-  ? "Creating directory:"
-  ? "  " + BUILD_DIR$
-  If file.exists%(BUILD_DIR$) Then
-    If file.delete%(BUILD_DIR$, 20) <> sys.SUCCESS Then Error sys.err$
-  EndIf
-  If file.mkdir%(BUILD_DIR$) <> sys.SUCCESS Then Error sys.err$
-
-  ? "Transpiling and copying:"
-  Local src$, dst$
-  Do
-    Read src$, dst$
-    If Not Len(src$) Then Exit Do
-    dst$ = str.replace$(dst$, "${BUILD}", BUILD_DIR$)
-    trans_and_copy(src$, dst$)
-  Loop
-
-  Const zip_file$ = "GameMite-" + sys.format_version$(version%) + ".zip"
-  ? "Creating archive:"
-  ? "  " + zip_file$
-  System "cd build && zip -r " + zip_file$ + " GameMite"
-End Sub
 
 Function get_version%()
   Open "src/startup.bas" For Input As #1
@@ -67,10 +54,42 @@ Function get_version%()
   Error "VERSION not found"
 End Function
 
+Sub create_build_dir()
+  ? "Creating directory:"
+  ? "  " + BUILD_DIR$
+  If file.exists%(BUILD_DIR$) Then
+    If file.delete%(BUILD_DIR$, 20) <> sys.SUCCESS Then Error sys.err$
+  EndIf
+  If file.mkdir%(BUILD_DIR$) <> sys.SUCCESS Then Error sys.err$
+End Sub
+
+Sub build_firmware()
+  ? "Building firmware:"
+  System "cd " + FIRMWARE_DIR$ + "/build" + " && cmake ../PicoMite && make"
+  Copy FIRMWARE_DIR$ + "/build/GameMite.uf2" To BUILD_DIR$ + "/../" + UF2_FILE$
+End Sub
+
+Sub build_software()
+  ? "Building software:"
+  Local src$, dst$
+  Do
+    Read src$, dst$
+    If Not Len(src$) Then Exit Do
+    dst$ = str.replace$(dst$, "${BUILD}", BUILD_DIR$)
+    trans_and_copy(src$, dst$)
+  Loop
+End Sub
+
 Sub trans_and_copy(src$, dst$)
   ? "  " src$ " => " dst$ " ..."
   Local cmd$ = "sptrans -q -DPGLCD2 " + src$ + " " + dst$
   System cmd$
+End Sub
+
+Sub create_archive()
+  ? "Creating archive:"
+  ? "  " + ZIP_FILE$
+  System "cd build && zip -r " + ZIP_FILE$ + " " + NAME_AND_VERSION$ + " " + UF2_FILE$
 End Sub
 
 Data "src/fm.bas", "${BUILD}/fm.bas"
