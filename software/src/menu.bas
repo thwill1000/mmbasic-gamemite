@@ -67,14 +67,14 @@ Sub cmd_run(key%)
       menu.term("Loading " + str.trim$(Field$(menu.items$(menu.selection%), 1, "|")) + " ...")
       Local f$ = Field$(menu.items$(menu.selection%), 3, "|"), orig$ = f$, x%
       If Not InStr("A:/B:/", UCase$(Left$(f$, 3))) Then
-        f$ = "A:/pglcd/" + orig$
+        f$ = "A:/GameMite/" + orig$
         x% = Mm.Info(Exists File f$)
         If Not x% Then
-          f$ = "B:/pglcd/" + orig$
+          f$ = "B:/GameMite/" + orig$
           On Error Skip
           x% = Mm.Info(Exist File f$)
           If Mm.ErrNo Then x% = 0
-          If Not x% Then f$ = "A:/pglcd/" + orig$
+          If Not x% Then f$ = "A:/GameMite/" + orig$
         EndIf
       EndIf
       x% = Mm.Info(Exists File f$)

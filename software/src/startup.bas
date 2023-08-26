@@ -36,7 +36,7 @@ Text 160, y%, "(c) 2023 Thomas Hugo Williams", CM
 Inc y%, 2 * Mm.Info(FontHeight)
 If Mm.Device$ = "PicoMite" Then Font 7
 Dim title$ = "PicoMite MMBasic Version " + sys.format_version$(sys.FIRMWARE, 1)
-If Mm.Info$(Device X) = "PicoGAME LCD" Then Cat title$, " - PGLCD"
+If Mm.Info$(Device X) = "GameMite" Then Cat title$, " - GameMite"
 Text 160, y%, title$, CM
 Inc y%, Mm.Info(FontHeight) + 1
 Text 160, y%, "Copyright 2011-2023 Geoff Graham", CM
@@ -44,8 +44,8 @@ Inc y%, Mm.Info(FontHeight) + 1
 Text 160, y%, "Copyright 2016-2023 Peter Mather", CM
 Font 1
 Inc y%, 2 * Mm.Info(FontHeight)
-Dim f$ = "A:/pglcd/menu.bas", x% = Mm.Info(Exists File f$)
-If Not x% Then f$ = "B:/pglcd/menu.bas" : x% = Mm.Info(Exists File f$)
+Dim f$ = "A:/GameMite/menu.bas", x% = Mm.Info(Exists File f$)
+If Not x% Then f$ = "B:/GameMite/menu.bas" : x% = Mm.Info(Exists File f$)
 Dim msg$ = Choice(x%, "Loading menu ...", "Menu program not found!")
 Text 160, y%, msg$, CM
 Pause 500

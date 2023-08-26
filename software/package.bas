@@ -14,7 +14,7 @@ Option Explicit 1
 #Include "src/splib/file.inc"
 #Include "src/splib/string.inc"
 
-Const BUILD_DIR$ = "build/pglcd"
+Const BUILD_DIR$ = "build/GameMite"
 Const SOFTWARE_DIR$ = "/pico-game-lcd/software/"
 Const VERSION% = get_version%()
 
@@ -40,10 +40,10 @@ Sub main()
     trans_and_copy(src$, dst$)
   Loop
 
-  Const zip_file$ = "pglcd-" + sys.format_version$(version%) + ".zip"
+  Const zip_file$ = "GameMite-" + sys.format_version$(version%) + ".zip"
   ? "Creating archive:"
   ? "  " + zip_file$
-  System "cd build && zip -r " + zip_file$ + " pglcd"
+  System "cd build && zip -r " + zip_file$ + " GameMite"
 End Sub
 
 Function get_version%()

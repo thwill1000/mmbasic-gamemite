@@ -18,7 +18,7 @@ End
 Sub main()
   Const version% = get_version%()
   Const drive$ = Mm.Info(Drive)
-  Const dst_dir$ = "A:/pglcd"
+  Const dst_dir$ = "A:/GameMite"
 
   ?
   ? "Installing PicoGAME LCD " sys.format_version$(version%) " to A:/"
