@@ -2,7 +2,7 @@
 ' License MIT <https://opensource.org/licenses/MIT>
 ' For MMBasic 5.07
 
-' Limited "File Manager" for the PicoGAME LCD.
+' Limited "File Manager" for the GameMite.
 
 Option Base 0
 Option Default None

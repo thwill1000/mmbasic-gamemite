@@ -53,11 +53,21 @@ End Sub
 
 Sub menu_cb(cb_data$)
   Select Case Field$(cb_data$, 1, "|")
-    Case "render", "selection_changed"
+    Case "render"
+      on_render()
+    Case "selection_changed"
       ' Do nothing.
     Case Else
       Error "Invalid state"
   End Select
+End Sub
+
+Sub on_render()
+  ' Fiddle with the title so that the spacing around the star looks good.
+  Const y% = 2 * Mm.Info(FontHeight)
+  Text 163 - 5 * Mm.Info(FontWidth), y%, "Game   ", , 1, 1, Rgb(Yellow)
+  Text 158, y%, " Mite", , 1, 1, Rgb(Yellow)
+  Text 160, y%, Chr$(&h9F), CT, 1, 1, Rgb(Yellow)
 End Sub
 
 Sub cmd_run(key%)
@@ -114,7 +124,7 @@ Sub cmd_exit(key%)
 End Sub
 
 main_menu_data:
-Data "Game \x9F Mite|"
+Data "GameMite|"
 Data "|"
 Data "   Controller Test    |cmd_run|ctrl-demo-2.bas"
 Data "      Sound Test      |cmd_run|sound-demo.bas"

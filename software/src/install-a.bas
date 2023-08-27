@@ -2,7 +2,7 @@
 ' License MIT <https://opensource.org/licenses/MIT>
 ' For MMBasic 5.07.08
 
-' Utility to copy PicoGAME LCD software to "A:/"
+' Utility to copy GameMite software to "A:/"
 
 Option Base 0
 Option Default None
@@ -21,7 +21,7 @@ Sub main()
   Const dst_dir$ = "A:/GameMite"
 
   ?
-  ? "Installing PicoGAME LCD " sys.format_version$(version%) " to A:/"
+  ? "Installing GameMite " sys.format_version$(version%) " to A:/"
   ?
 
   If Not Mm.Info(Exists Dir dst_dir$) Then
@@ -42,7 +42,7 @@ Sub main()
   Loop
 
   ?
-  ? "To configure autorun of PicoGAME LCD type:"
+  ? "To configure autorun of GameMite type:"
   ?
   ? "  FLASH ERASE 1 ' fails harmlessly if flash slot 1 is empty"
   ? "  LOAD " + Chr$(34) + dst_dir$ + "/startup.bas" + Chr$(34)

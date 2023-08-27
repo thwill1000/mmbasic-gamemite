@@ -18,7 +18,7 @@ Const NAME$ = "GameMite"
 Const VERSION% = get_version%()
 Const VERSION_STR$ = sys.format_version$(VERSION%)
 Const NAME_AND_VERSION$ = NAME$ + "-" + VERSION_STR$
-Const BUILD_DIR$ = "build/" + NAME_AND_VERSION$
+Const BUILD_DIR$ = "build/" + NAME$
 Const SOFTWARE_DIR$ = "/pico-game-lcd/software/"
 Const FIRMWARE_DIR$ = "../../picomite-firmware"
 Const UF2_FILE$ = NAME_AND_VERSION$ + ".uf2"
@@ -89,7 +89,7 @@ End Sub
 Sub create_archive()
   ? "Creating archive:"
   ? "  " + ZIP_FILE$
-  System "cd build && zip -r " + ZIP_FILE$ + " " + NAME_AND_VERSION$ + " " + UF2_FILE$
+  System "cd build && zip -r " + ZIP_FILE$ + " " + NAME$ + " " + UF2_FILE$
 End Sub
 
 Data "src/fm.bas", "${BUILD}/fm.bas"

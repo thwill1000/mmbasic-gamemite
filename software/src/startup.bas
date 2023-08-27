@@ -20,8 +20,12 @@ Const VERSION = 300 ' 0.3.0
 
 Mode 7
 Cls
-Dim y% = 80
-Text 160, y%, "Game " + Chr$(&h9F) + " Mite v" + sys.format_version$(VERSION), CM
+
+Dim x% = 95, y% = 80
+Text x%, y%, "Game", LM, 1, 1
+Text x% + 33, y%, Chr$(&h9F), LM, 1, 1
+Text x% + 43, y%, "Mite v" + sys.format_version$(VERSION), LM, 1, 1
+
 Inc y%, Mm.Info(FontHeight) + 1
 
 If Mm.Device$ <> "PicoMite" Or ((sys.FIRMWARE < 5070808) And (sys.FIRMWARE <> 5070800)) Then
@@ -44,9 +48,9 @@ Inc y%, Mm.Info(FontHeight) + 1
 Text 160, y%, "Copyright 2016-2023 Peter Mather", CM
 Font 1
 Inc y%, 2 * Mm.Info(FontHeight)
-Dim f$ = "A:/GameMite/menu.bas", x% = Mm.Info(Exists File f$)
-If Not x% Then f$ = "B:/GameMite/menu.bas" : x% = Mm.Info(Exists File f$)
-Dim msg$ = Choice(x%, "Loading menu ...", "Menu program not found!")
+Dim f$ = "A:/GameMite/menu.bas", z% = Mm.Info(Exists File f$)
+If Not z% Then f$ = "B:/GameMite/menu.bas" : z% = Mm.Info(Exists File f$)
+Dim msg$ = Choice(z%, "Loading menu ...", "Menu program not found!")
 Text 160, y%, msg$, CM
 Pause 500
 If Len(f$) Then Run f$ Else End
