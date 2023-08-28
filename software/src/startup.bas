@@ -6,7 +6,7 @@ Option Base 0
 Option Default None
 Option Explicit 1
 
-Const VERSION = 300 ' 0.3.0
+Const VERSION = 400 ' 0.4.0
 
 '!define NO_INCLUDE_GUARDS
 
@@ -28,11 +28,11 @@ Text x% + 43, y%, "Mite v" + sys.format_version$(VERSION), LM, 1, 1
 
 Inc y%, Mm.Info(FontHeight) + 1
 
-If Mm.Device$ <> "PicoMite" Or ((sys.FIRMWARE < 5070808) And (sys.FIRMWARE <> 5070800)) Then
+If Mm.Device$ <> "PicoMite" Or ((sys.FIRMWARE < 5070812) And (sys.FIRMWARE <> 5070800)) Then
   Inc y%, Mm.Info(FontHeight) + 1
   Text 160, y%, "ERROR: Requires PicoMite firmware", CM, , , Rgb(Red)
   Inc y%, Mm.Info(FontHeight) + 1
-  Text 160, y%, "       5.07.08b8 or later        ", CM, , , Rgb(Red)
+  Text 160, y%, "       5.07.08b12 or later       ", CM, , , Rgb(Red)
   End
 EndIf
 

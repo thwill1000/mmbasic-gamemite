@@ -30,6 +30,7 @@ create_build_dir()
 build_firmware()
 build_software()
 create_archive()
+copy_archive()
 
 End
 
@@ -92,6 +93,14 @@ Sub create_archive()
   System "cd build && zip -r " + ZIP_FILE$ + " " + NAME$ + " " + UF2_FILE$
 End Sub
 
+Sub copy_archive()
+  Const src$ = "build/" + ZIP_FILE$
+  Const dst$ = "../download/" + ZIP_FILE$
+  ? "Copying archive to:"
+  ? "  " + dst$
+  Copy src$ To dst$
+End Sub
+
 Data "src/fm.bas", "${BUILD}/fm.bas"
 Data "src/install-a.bas", "${BUILD}/install-a.bas"
 Data "src/menu.bas", "${BUILD}/menu.bas"
@@ -101,5 +110,5 @@ Data "../../mmbasic-sptools/src/splib/examples/sound-demo.bas", "${BUILD}/sound-
 Data "../../mmbasic-lazer-cycle/src/lazer-cycle.bas", "${BUILD}/lazer-cycle.bas"
 Data "../../mmbasic-third-party/pico-vaders/pico-vaders.bas", "${BUILD}/pico-vaders.bas"
 Data "../../mmbasic-third-party/3d-maze/3d-maze.bas", "${BUILD}/3d-maze.bas"
-Data "../../cmm2-kingdom/src/kingdom.bas", "${BUILD}/kingdom.bas"
+Data "../../mmbasic-kingdom/src/kingdom.bas", "${BUILD}/kingdom.bas"
 Data "", ""

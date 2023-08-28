@@ -113,6 +113,7 @@ Sub cmd_exit(key%)
         Case "No"
           twm.switch(menu.win1%)
           twm.redraw()
+          on_render()
           Page Copy 1 To 0 , B
         Case Else
           Error "Invalid state"
