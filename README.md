@@ -1,105 +1,75 @@
-# PicoGAME LCD
+# Game★Mite
 
-The "PicoGAME LCD" is a handheld videogame based on the Raspberry Pico microcontroller running the [PicoMite](https://geoffg.net/picomite.html) firmware.
+The GameMite is a “build it yourself” handheld game console based on the Raspberry Pi Pico microcontroller running a customised version of the [PicoMite](https://geoffg.net/picomite.html) firmware.
 
-**Features:**
+<img src="images/gamemite-1-3-1.jpg" height="500" alt="Photo of GameMite version 1.3.1">
 
- - Raspberry Pico Microcontroller
- - 320x240 ILI9341 SPI LCD display + integrated SD card reader
+## Features
+
+ - Raspberry Pi Pico Microcontroller
+ - 320x240 ILI9341 SPI TFT display + integrated SD card reader
  - NES style game controller (very clicky)
- - Two channel audio (that sounds like an irate hornet)
- - 3.7V LIPO battery with charging and protection circuit
+ - Mono audio via PWM capable of playing 4 notes simultaneously
+ - 3v7 LiPo battery with charging and protection circuit
  - MMBasic programming language
 
-**Photos of the Mk-I:**
+## Photos
 
-<img src="images/mk1-front.jpg" height="500"> <img src="images/mk1-back.jpg" height="500">
+<img src="images/gm-menu.jpg" width="320" alt="Boot menu screenshot"> <img src="images/gm-lazercycle.jpg" width="320" alt="Lazer cycle screenshot"> <img src="images/gm-picovaders.jpg" width="320" alt="Picovaders screenshot">
+<img src="images/gm-kingdom.jpg" width="320" alt="Yellow River Kingdom screenshot"> <img src="images/gm-maze.jpg" width="320" alt="3D Maze screenshot"> <img src="images/gm-files.jpg" width="320" alt="File Browser screenshot">
 
-**YouTube video:**
+## YouTube video
+
+This video shows the Mark-I prototype.
 
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.youtube.com/watch?v=jB5hF2ZWHrA"><img src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" width="10%" title="https://www.youtube.com/watch?v=jB5hF2ZWHrA"></a>
 
-**Credits:**
+*Video of the release version coming soon-ish*.
 
- * PicoGAME LCD concept, prototype and software by Thomas Hugo Williams (@thwill)
- * Based on the "PicoMite Backpack" by @Mixtel90
- * PicoMite MMBasic:
-     * Copyright 2011-2023 Geoff Graham
-     * Copyright 2016-2023 Peter Mather
- * With thanks to @bigmik, @Turbo46 and @Volhout
+## Copyright and Acknowledgements
+
+GameMite hardware © 2023 Thomas Hugo Williams (@thwill):
+ * Original concept and prototype by Thomas Hugo Williams based on the “PicoMite Backpack” by Mick Ames (@Mixtel90).
+ * PCB designed by Mick Gulovsen (@bigmik) hindered by Thomas Hugo Williams and Bill McKinley (@Turbo46).
+ * Published under the CC BY 4.0 license.
+ * https://www.sockpuppetstudios.com
+
+GameMite MMBasic program suite by Thomas Hugo Williams and friends:
+ * See individual programs for copyright and licensing specifics.
+
+GameMite User Manual © 2023 Thomas Hugo Williams, Mick Gulovsen and Bill McKinley
+ * Published under the CC BY 4.0 license.
+ * The instructions for loading the firmware and attaching a terminal emulator were adapted with permission from the PicoMite User Manual: https://geoffg.net/Downloads/picomite/PicoMite_User_Manual.pdf.
+
+PicoMite/MMBasic firmware:
+ * https://geoffg.net/picomite.html
+ * Copyright 2011-2023 Geoff Graham
+ * Copyright 2016-2023 Peter Mather
+ * Customisations for GameMite by Thomas Hugo Williams - https://github.com/thwill1000/picomite-firmware/tree/gamemite.
+
+Special thanks to @Martin H, @Mozzie, @Volhout and our other friends from https://www.thebackshed.com/forum/Microcontrollers.
+
+## Documentation
+
+ * [User Manual](doc/GameMite-User-Manual-latest.pdf)
 
 ## Hardware
 
- * [Schematic](hardware/pico-game-lcd-mk1/pico-game-lcd-mk1-schematic-0.1.2.pdf)
- * *PCB coming (not very) soon ... hopefully*
+ * [Schematic](hardware/pcb-1-3-1/gamemite-schematic-1-3-1.jpg)
+ * [PCB Gerbers](hardware/pcb-1-3-1/gamemite-gerbers-1-3-1.zip)
 
-## Firmware
+## Firmware & Software
 
-The PicoGAME LCD uses a customised version of the latest beta PicoMite/MMBasic firmware:
- * [PicoMite-pglcd-0.2.0.zip](https://github.com/thwill1000/pico-game-lcd/raw/develop/0.2.0/download/PicoMite-pglcd-0.2.0.zip) - derived from PicoMite 5.07.08b11
-     * Copyright 2011-2023 Geoff Graham
-     * Copyright 2016-2023 Peter Mather
-
-Instructions for installing/updating the PicoMite firmware on a Raspberry Pico can be found in the **Getting Started** chapter of the [PicoMite User Manual](https://geoffg.net/Downloads/picomite/PicoMite_User_Manual.pdf).
-
-Once the firmware is installed and the green "heartbeat" LED on the PicoMite is flashing, use a USB data cable and a terminal program running on a "PC" to connect to the PicoGAME LCD as described in the **Getting Started** chapter of the PicoMite User Manual.
-
-Run the following commands at the MMBasic prompt to configure the system options for the PicoGAME LCD:
- ```
- OPTION CPUSPEED 252000
- OPTION SYSTEM SPI GP6,GP3,GP4
- OPTION TOUCH GP5,GP7
- OPTION SDCARD GP22
- OPTION AUDIO GP20,GP21
- OPTION LCDPANEL ILI9341,RLANDSCAPE,GP2,GP1,GP0
- ```
-
-### Differences from the standard PicoMite firmware
-
-The PicoGAME LCD firmware differs from the standard PicoMite firmware in the following ways:
- - If a "sigbus" error occurs it does not clear `OPTION AUTORUN`.
-     - The standard PicoMite does this to prevent the Pico going into an unbreakable restart cycle should the program being `AUTORUN` throw such an error; the simple PicoGAME LCD "startup.bas" is hopefully error free.
-     -  Without this modification any "sigbus" error thrown will cause the PicoGAME LCD to reboot to a blank display that can only be restored by attaching a serial console and re-enabling `OPTION AUTORUN` as described in [Software](README.md#Software) below.
-
- - If `OPTION LCDPANEL CONSOLE` is not set (the default) then the PicoGAME LCD will display any uncaught error on the LCD panel as well as the serial console.
-     - Without this modification any uncaught error will cause the PicoGAME LCD to appear to have hung; the fact that an error had occurred would only be visible on the serial console.
-
-NOTE: The current iteration of the PicoGAME LCD will also work with the standard PicoMite 5.07.08b8 (or later) firmware subject to the limitations addressed above.
-
-## Software
-
-The standard PicoGAME LCD software pack can be downloaded from:
- *  [pglcd-0.2.0.zip](https://github.com/thwill1000/pico-game-lcd/raw/develop/0.2.0/download/pglcd-0.2.0.zip)
-
-To install it on the PicoMite internal flash drive (A:/):
- 1. Extract contents of zip file into the root of a FAT32 formatted SD card.
-     * Once extracted the SD card should contain the following:
-         ```
-         /
-             pglcd/
-                 install-a.bas
-                 menu.bas
-                 startup.bas
-                 ...
-         ```
-     * *NB: the SD card may have other pre-existing content, but only the "pglcd/" directory is revelvant to these installation instructions.*
-
-  2. Connect to the PicoGAME LCD from a terminal emulator as described in the **Getting Started** chapter of the PicoMite User Manual.
-  3. Insert the SD card into the PicoGAME LCD.
-  4. Run the following command at the MMBasic prompt to copy the software to the A:/ drive:
-      ```
-      RUN "B:/pglcd/install-a.bas"
-      ```
-  5. When this has completed RUN the following commands to complete setup:
-      ```
-      FLASH ERASE 1
-      LOAD "A:/pglcd/startup.bas"
-      FLASH SAVE 1
-      OPTION AUTORUN 1
-      ```
-     *NB: `FLASH ERASE 1` will report a harmless error if flash slot 1 is already empty.*
-
-The PicoGAME LCD software should now be setup. If RESET is pressed or the device is power-cycled it should reboot to show the version and copyright message before displaying the main-menu.
+ * Installations:
+     * [GameMite-1.0.0-full.zip](download/GameMite-1.0.0-full.zip) - Standard installation
+     * [GameMite-1.0.0-appendix-d.zip](download/GameMite-1.0.0-appendix-d.zip) - Alternative "Appendix D" installation
+ * Source code:
+     * [Customised version of PicoMite firmware](https://github.com/thwill1000/picomite-firmware/tree/gamemite) - by Geoff Graham, Peter Mather and Thomas Hugo Williams
+     * [GameMite "system" programs](software/src) - by Thomas Hugo Williams
+     * [Lazer Cycle](https://github.com/thwill1000/mmbasic-lazer-cycle) - by Thomas Hugo Williams
+     * [PicoVaders](https://github.com/thwill1000/mmbasic-third-party/tree/main/pico-vaders) - by Martin Herhaus
+     * [Yellow River Kingdom](https://github.com/thwill1000/mmbasic-kingdom) - by Tom Hartley, Jerry Temple-Fry and Richard G Warner
+     * [3D Maze](https://github.com/thwill1000/mmbasic-third-party/tree/main/3d-maze) - by Martin Herhaus
 
 ## FAQ
 
@@ -115,15 +85,15 @@ The PicoMite firmware is totally free to download and use.
 
 More information can be found on the official PicoMite website at https://geoffg.net/picomite.html
 
-**2. How do I contact the creator of the PicoGAME LCD ?**
+**2. How do I contact the creator of the GameMite ?**
 
 I can be contacted via:
  - https://github.com as user "thwill1000"
- - https://www.thebackshed.com/forum/ViewForum.php?FID=16 as user "thwill"
+ - https://www.thebackshed.com/forum/Microcontrollers as user "thwill"
 
 ##
 
-The PicoGAME LCD schematic and games are distributed for free but if you enjoy it then
+The GameMite design, gerbers, firmware and MMBasic program suite are distributed for free but if you enjoy it then
 perhaps you would like to buy me a coffee?
 
 <a href="https://www.buymeacoffee.com/thwill"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="width:217px;"></a>
