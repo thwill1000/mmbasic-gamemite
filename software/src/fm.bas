@@ -30,7 +30,7 @@ Option Explicit On
 #Include "splib/file.inc"
 #Include "splib/txtwm.inc"
 #Include "splib/menu.inc"
-#Include "splib/pglcd.inc"
+#Include "splib/gamemite.inc"
 
 If sys.is_device%("mmb4l") Then Option CodePage CMM2
 If sys.is_device%("mmb4w", "cmm2*") Then Option Console Serial
@@ -267,7 +267,7 @@ Sub on_select()
   Const msg$ = str.decode$("\nAre you sure you want to quit this program?")
   Select Case YES_NO_BTNS$(menu.msgbox%(msg$, YES_NO_BTNS$(), 1))
     Case "Yes"
-      pglcd.end()
+      gamemite.end()
     Case "No"
       twm.switch(menu.win1%)
       twm.redraw()
