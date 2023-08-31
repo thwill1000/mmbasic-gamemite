@@ -14,7 +14,7 @@ Const VERSION = 400 ' 0.4.0
 
 '!if defined(PICOMITEVGA)
   '!replace { Mode 7 } { Mode 2 }
-'!elif defined(PICOMITE) || defined(PGLCD2)
+'!elif defined(PICOMITE) || defined(GAMEMITE)
   '!replace { Mode 7 } { }
 '!endif
 
