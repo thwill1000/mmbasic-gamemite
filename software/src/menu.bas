@@ -37,14 +37,14 @@ main()
 Error "Invalid state"
 
 Sub main()
-  Local ctrl$ = Choice(sys.is_device%("pglcd2"), "ctrl.gamemite", "keys_cursor_ext")
+  Const ctrl$ = Choice(sys.is_device%("gamemite"), "ctrl.gamemite", "keys_cursor_ext")
   ctrl.init_keys()
   sys.override_break()
   Call ctrl$, ctrl.OPEN
   sound.init()
   menu.init(ctrl$, "menu_cb")
   menu.load_data("main_menu_data")
-  If sys.is_device%("pglcd") Then
+  If sys.is_device%("gamemite") Then
     menu.items$(Bound(menu.items$(), 1)) = str.decode$("Use \x92 \x93 and A to select |")
   EndIf
   menu.render(1)

@@ -40,7 +40,7 @@ Page Write 1
 Const MAX_FILES = 100
 Const FILES_PER_PAGE = 12
 
-If sys.is_device%("pglcd") Then
+If sys.is_device%("gamemite") Then
   Const num_drives% = 2
   Dim drives$(num_drives% - 1) = ("A:/", "B:/")
 Else
@@ -58,7 +58,7 @@ main()
 Error "Invalid state"
 
 Sub main()
-  Local ctrl$ = Choice(sys.is_device%("pglcd2"), "ctrl.gamemite", "keys_cursor_ext")
+  Const ctrl$ = Choice(sys.is_device%("gamemite"), "ctrl.gamemite", "keys_cursor_ext")
   ctrl.init_keys()
   sys.override_break()
   Call ctrl$, ctrl.OPEN
@@ -131,7 +131,7 @@ Sub update_menu_data()
   For i% = i% To Bound(menu.items$(), 1) - 1 : menu.items$(i%) = "|" : Next
 
   menu.items$(i%) = str.decode$("Use \x95 \x94 \x92 \x93 and ")
-  Cat menu.items$(i%), Choice(sys.is_device%("pglcd"), "A", "SPACE")
+  Cat menu.items$(i%), Choice(sys.is_device%("gamemite"), "A", "SPACE")
   Cat menu.items$(i%), " to select|"
 
   menu.item_count% = i% + 1
