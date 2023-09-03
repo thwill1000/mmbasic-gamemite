@@ -45,7 +45,7 @@ Sub main()
   menu.init(ctrl$, "menu_cb")
   menu.load_data("main_menu_data")
   If sys.is_device%("gamemite") Then
-    menu.items$(Bound(menu.items$(), 1)) = str.decode$("Use \x92 \x93 and A to select |")
+    menu.items$(Bound(menu.items$(), 1)) = str.decode$("Use \x92 \x93 and SELECT|")
   EndIf
   menu.render(1)
   menu.main_loop()
@@ -72,7 +72,7 @@ End Sub
 
 Sub cmd_run(key%)
   Select Case key%
-    Case ctrl.A
+    Case ctrl.A, ctrl.START, ctrl.SELECT
       menu.play_valid_fx(1)
       menu.term("Loading " + str.trim$(Field$(menu.items$(menu.selection%), 1, "|")) + " ...")
       Local f$ = Field$(menu.items$(menu.selection%), 3, "|"), orig$ = f$, x%
@@ -92,8 +92,8 @@ Sub cmd_run(key%)
       Run f$
       Error "Invalid state"
 
-    Case ctrl.SELECT
-      cmd_exit(key%)
+    Case ctrl.B
+      cmd_exit(ctrl.SELECT)
 
     Case Else
       menu.play_invalid_fx(1)
@@ -103,7 +103,7 @@ End Sub
 
 Sub cmd_exit(key%)
   Select Case key%
-    Case ctrl.A, ctrl.SELECT
+    Case ctrl.A, ctrl.START, ctrl.SELECT
       menu.play_valid_fx(1)
       Const msg$ = str.decode$("Are you sure you want to Exit to BASIC?\n\n(Serial connection reqd.)")
       Select Case YES_NO_BTNS$(menu.msgbox%(msg$, YES_NO_BTNS$(), 1))

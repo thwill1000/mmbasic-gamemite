@@ -130,9 +130,11 @@ Sub update_menu_data()
   ' Fill remaining entries with blanks.
   For i% = i% To Bound(menu.items$(), 1) - 1 : menu.items$(i%) = "|" : Next
 
-  menu.items$(i%) = str.decode$("Use \x95 \x94 \x92 \x93 and ")
-  Cat menu.items$(i%), Choice(sys.is_device%("gamemite"), "A", "SPACE")
-  Cat menu.items$(i%), " to select|"
+  If sys.is_device%("gamemite") Then
+    menu.items$(i%) = str.decode$("Use \x95 \x94 \x92 \x93 and SELECT|")
+  Else
+    menu.items$(i%) = str.decode$("Use \x95 \x94 \x92 \x93 and SPACE to select|")
+  EndIf
 
   menu.item_count% = i% + 1
   If Not Len(Field$(menu.items$(menu.selection%), 2, "|")) Then
@@ -178,12 +180,9 @@ Sub cmd_drive(key%)
         Case >= num_drives% : drive_idx% = 0
       End Select
 
-    Case ctrl.SELECT
-      on_select()
+    Case ctrl.START
+      on_start()
       Exit Sub
-
-    Case Else
-      menu.play_invalid_fx(1)
   End Select
 
   If update% Then
@@ -198,7 +197,7 @@ End Sub
 
 Sub cmd_open(key%)
   Select Case key%
-    Case ctrl.A
+    Case ctrl.A, ctrl.SELECT
       Local f$ = Field$(menu.items$(menu.selection%), 1, "|")
       Local file_idx% = Val(Field$(menu.items$(menu.selection%), 3, "|"))
       If Right$(f$, 1) = "/" Then
@@ -254,15 +253,15 @@ Sub cmd_open(key%)
         menu.render()
       EndIf
 
-    Case ctrl.SELECT
-      on_select()
+    Case ctrl.START
+      on_start()
 
     Case Else
       menu.play_invalid_fx(1)
   End Select
 End Sub
 
-Sub on_select()
+Sub on_start()
   menu.play_valid_fx(1)
   Const msg$ = str.decode$("\nAre you sure you want to quit this program?")
   Select Case YES_NO_BTNS$(menu.msgbox%(msg$, YES_NO_BTNS$(), 1))
