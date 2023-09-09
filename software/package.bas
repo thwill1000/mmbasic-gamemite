@@ -21,8 +21,8 @@ Const NAME_AND_VERSION$ = NAME$ + "-" + VERSION_STR$
 Const BUILD_DIR$ = "build/" + NAME$
 Const SOFTWARE_DIR$ = "/mmbasic-gamemite/software/"
 Const FIRMWARE_DIR$ = "../../picomite-firmware"
-Const UF2_FILE$ = NAME_AND_VERSION$ + ".uf2"
-Const ZIP_FILE$ = NAME_AND_VERSION$ + ".zip"
+Const UF2_FILE$ = NAME_AND_VERSION$ + "-fw-only.uf2"
+Const ZIP_FILE$ = NAME_AND_VERSION$ + "-appendix-d.zip"
 
 If Right$(Mm.Info$(Path), Len(SOFTWARE_DIR$)) <> SOFTWARE_DIR$ Then Error "Invalid path"
 
