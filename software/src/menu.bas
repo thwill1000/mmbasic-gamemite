@@ -2,6 +2,8 @@
 ' License MIT <https://opensource.org/licenses/MIT>
 ' For MMBasic 5.07
 
+' Boot menu for the GameMite.
+
 Option Base 0
 Option Default None
 Option Explicit On

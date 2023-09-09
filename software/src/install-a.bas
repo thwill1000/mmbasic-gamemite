@@ -1,6 +1,6 @@
 ' Copyright (c) 2023 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
-' For MMBasic 5.07.08
+' For MMBasic 5.07
 
 ' Utility to copy GameMite software to "A:/"
 

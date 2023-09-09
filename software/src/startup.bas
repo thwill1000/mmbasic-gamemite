@@ -1,12 +1,14 @@
 ' Copyright (c) 2023 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
-' For MMBasic 5.07.08
+' For MMBasic 5.07
+
+' Startup banner for the GameMite.
 
 Option Base 0
 Option Default None
 Option Explicit 1
 
-Const VERSION = 400 ' 0.4.0
+Const VERSION = 10000 ' 1.0.0
 
 '!define NO_INCLUDE_GUARDS
 
