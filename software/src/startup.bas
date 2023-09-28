@@ -44,9 +44,21 @@ Text 160, y%, "(c) 2023 Thomas Hugo Williams", CM
 Inc y%, 2 * FH
 
 If Mm.Device$ = "PicoMite" Then Font 7
-Dim title$ = "PicoMite MMBasic Version " + sys.format_firmware_version$()
-If Mm.Info$(Device X) = "GameMite" Then Cat title$, " - GameMite"
-Text 160, y%, title$, CM
+s$ = "Not running GameMite firmware"
+If Mm.Info(Device X) = "GameMite" Then
+  If Mm.Info(Version X) = VERSION Then
+    s$ = ""
+  Else
+    s$ = "GameMite firmware v" + sys.format_version$(Mm.Info(Version X))
+  EndIf
+EndIf
+If Len(s$) Then
+  Text 160, y%, s$, CM, , , Rgb(Green)
+  Inc y%, FH + 1
+EndIf
+
+s$ = "PicoMite MMBasic Version " + sys.format_firmware_version$()
+Text 160, y%, s$, CM
 Inc y%, FH + 1
 
 Text 160, y%, "Copyright 2011-2023 Geoff Graham", CM
