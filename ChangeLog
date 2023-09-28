@@ -5,6 +5,8 @@ Version 1.1.0 - 1-Oct-2023:
  - Updated GameMite firmware to PicoMite 5.07.08 RC4.
  - Startup screen now highlights when non-GameMite firmware is being used, or
    when the versions of the GameMite firmware and MMBasic program suite differ.
+ - Fixed bug in PicoVaders that caused it to crash if its intro screen was
+   allowed to run to completion.
 
 Version 1.0.0 - 16-Sep-2023:
  - Initial public release.
