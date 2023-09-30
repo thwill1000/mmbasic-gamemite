@@ -83,7 +83,7 @@ End Sub
 
 Sub trans_and_copy(src$, dst$)
   ? "  " src$ " => " dst$ " ..."
-  Local cmd$ = "sptrans -q -DGAMEMITE " + src$ + " " + dst$
+  Local cmd$ = "sptrans -q -n -e=1 -i=1 -DGAMEMITE " + src$ + " " + dst$
   System cmd$
 End Sub
 
