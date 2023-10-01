@@ -61,8 +61,8 @@ Special thanks to @Martin H, @Mozzie, @Volhout and our other friends from https:
 ## Firmware & Software
 
  * Installations:
-     * [GameMite-1.0.0-full.zip](download/GameMite-1.0.0-full.zip) - Standard installation
-     * [GameMite-1.0.0-appendix-d.zip](download/GameMite-1.0.0-appendix-d.zip) - Alternative "Appendix D" installation
+     * [GameMite-1.1.0-full.zip](download/GameMite-1.1.0-full.zip) - Standard installation
+     * [GameMite-1.1.0-appendix-d.zip](download/GameMite-1.1.0-appendix-d.zip) - Alternative "Appendix D" installation
  * Source code:
      * [Customised version of PicoMite firmware](https://github.com/thwill1000/picomite-firmware/tree/gamemite) - by Geoff Graham, Peter Mather and Thomas Hugo Williams
      * [GameMite "system" programs](software/src) - by Thomas Hugo Williams
