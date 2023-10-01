@@ -8,7 +8,7 @@ Option Base 0
 Option Default None
 Option Explicit 1
 
-Const VERSION = 10000 ' 1.0.0
+Const VERSION = 101300 ' 1.1.0
 
 '!define NO_INCLUDE_GUARDS
 
@@ -23,33 +23,51 @@ Const VERSION = 10000 ' 1.0.0
 Mode 7
 Cls
 
-Dim x% = 95, y% = 80
-Text x%, y%, "Game", LM, 1, 1
-Text x% + 33, y%, Chr$(&h9F), LM, 1, 1
-Text x% + 43, y%, "Mite v" + sys.format_version$(VERSION), LM, 1, 1
+Const FW = Mm.Info(FontWidth), FH = Mm.Info(FontHeight)
+Dim s$ = "Game*Mite v" + sys.format_version$(VERSION)
+Const x% = (Mm.HRes - Len(s$) * FW) \ 2
+Dim y% = 6 * FH
+Text x%, y%, Left$(s$, 4), LM, 1, 1
+Text x% + 4 * FW + 1, y%, Chr$(&h9F), LM, 1, 1
+Text x% + 5 * FW + 3, y%, Mid$(s$, 6), LM, 1, 1
+Inc y%, FH + 1
 
-Inc y%, Mm.Info(FontHeight) + 1
-
-If Mm.Device$ <> "PicoMite" Or ((sys.FIRMWARE < 5070812) And (sys.FIRMWARE <> 5070800)) Then
-  Inc y%, Mm.Info(FontHeight) + 1
+If Mm.Device$ <> "PicoMite" Or ((sys.FIRMWARE < 5070900) And (sys.FIRMWARE <> 5070800)) Then
+  Inc y%, FH + 1
   Text 160, y%, "ERROR: Requires PicoMite firmware", CM, , , Rgb(Red)
-  Inc y%, Mm.Info(FontHeight) + 1
-  Text 160, y%, "       5.07.08b12 or later       ", CM, , , Rgb(Red)
+  Inc y%, FH + 1
+  Text 160, y%, "        5.07.08 or later         ", CM, , , Rgb(Red)
   End
 EndIf
 
 Text 160, y%, "(c) 2023 Thomas Hugo Williams", CM
-Inc y%, 2 * Mm.Info(FontHeight)
+Inc y%, 2 * FH
+
 If Mm.Device$ = "PicoMite" Then Font 7
-Dim title$ = "PicoMite MMBasic Version " + sys.format_version$(sys.FIRMWARE, 1)
-If Mm.Info$(Device X) = "GameMite" Then Cat title$, " - GameMite"
-Text 160, y%, title$, CM
-Inc y%, Mm.Info(FontHeight) + 1
+s$ = "Not running GameMite firmware"
+If Mm.Info(Device X) = "GameMite" Then
+  If Mm.Info(Version X) = VERSION Then
+    s$ = ""
+  Else
+    s$ = "GameMite firmware v" + sys.format_version$(Mm.Info(Version X))
+  EndIf
+EndIf
+If Len(s$) Then
+  Text 160, y%, s$, CM, , , Rgb(Green)
+  Inc y%, FH + 1
+EndIf
+
+s$ = "PicoMite MMBasic Version " + sys.format_firmware_version$()
+Text 160, y%, s$, CM
+Inc y%, FH + 1
+
 Text 160, y%, "Copyright 2011-2023 Geoff Graham", CM
-Inc y%, Mm.Info(FontHeight) + 1
+Inc y%, FH + 1
+
 Text 160, y%, "Copyright 2016-2023 Peter Mather", CM
 Font 1
-Inc y%, 2 * Mm.Info(FontHeight)
+Inc y%, 2 * FH
+
 Dim f$ = "A:/GameMite/menu.bas", z% = Mm.Info(Exists File f$)
 If Not z% Then f$ = "B:/GameMite/menu.bas" : z% = Mm.Info(Exists File f$)
 Dim msg$ = Choice(z%, "Loading menu ...", "Menu program not found!")

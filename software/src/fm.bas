@@ -34,10 +34,8 @@ Option Explicit On
 
 If sys.is_device%("mmb4l") Then Option CodePage CMM2
 If sys.is_device%("mmb4w", "cmm2*") Then Option Console Serial
-Mode 7
-Page Write 1
 
-Const MAX_FILES = 100
+Const MAX_FILES = 500
 Const FILES_PER_PAGE = 12
 
 If sys.is_device%("gamemite") Then
@@ -49,10 +47,13 @@ Else
 EndIf
 Dim drive_idx% = 0
 Dim file_list$(MAX_FILES + 1) Length 64 ' MAX_FILES + 2 elements
+Dim menu.items$(15) Length 127
 Dim num_files%
 Dim cur_page%
 Dim num_pages%
-Dim menu.items$(15)
+
+Mode 7
+Page Write 1
 
 main()
 Error "Invalid state"
@@ -77,15 +78,15 @@ Sub update_files()
   If Mm.ErrNo Then num_files% = -1 : Exit Sub
 
   num_files% = file.get_files%(drives$(drive_idx%), "*", "all", file_list$())
-  If (num_files% > 100) Then
-    file_list$(100) = "... and " + Str$(num_files% - 100) + " more"
-    num_files% = 101
+  If (num_files% > MAX_FILES) Then
+    file_list$(MAX_FILES) = "... and " + Str$(num_files% - MAX_FILES) + " more"
+    num_files% = MAX_FILES + 1
   EndIf
 
   ' Shift all the enties in file_list$() one element to the right.
   If Len(file.get_parent$(drives$(drive_idx%))) Then
     Const p% = Peek(VarAddr file_list$())
-    Memory Copy p%, p% + 65, 65 * 101
+    Memory Copy p%, p% + 65, 65 * (MAX_FILES + 1)
     file_list$(0) = ".."
     Inc num_files%
   EndIf
@@ -211,21 +212,17 @@ Sub cmd_open(key%)
         update_files()
         update_menu_data()
         menu.render()
-      ElseIf LCase$(Right$(file_list$(file_idx%), 4)) = ".bas" Then
-        menu.play_valid_fx(1)
-        f$ = drives$(drive_idx%)
-        If Right$(f$, 1) <> "/" Then Cat f$, "/"
-        Cat f$, file_list$(file_idx%)
-        menu.term("Loading " + file.get_name$(f$) + " ...")
-        If Mm.Info(Exists File f$) Then
-          Run f$
-        Else
-          menu.term(file.get_name$(f$) + " not found")
-          End
-        EndIf
-        Error "Invalid state"
       Else
-        menu.play_invalid_fx(1)
+        Select Case LCase$(file.get_extension$(file_list$(file_idx%)))
+          Case ".bas"
+            menu.play_valid_fx(1)
+            open_bas(file_idx%)
+          Case ".flac", ".mod", ".wav"
+            menu.play_valid_fx(1)
+            play_music(file_idx%)
+          Case Else
+            menu.play_invalid_fx(1)
+        End Select
       EndIf
 
     Case ctrl.B
@@ -259,6 +256,77 @@ Sub cmd_open(key%)
     Case Else
       menu.play_invalid_fx(1)
   End Select
+End Sub
+
+Sub open_bas(file_idx%)
+  Local f$ = drives$(drive_idx%)
+  If Right$(f$, 1) <> "/" Then Cat f$, "/"
+  Cat f$, file_list$(file_idx%)
+  menu.term("Loading " + file.get_name$(f$) + " ...")
+  If Mm.Info(Exists File f$) Then
+    Run f$
+  Else
+    menu.term(file.get_name$(f$) + " not found")
+    End
+  EndIf
+  Error "Invalid state"
+End Sub
+
+Sub play_music(file_idx%)
+  Local f$ = drives$(drive_idx%), key%
+  If Right$(f$, 1) <> "/" Then Cat f$, "/"
+  Cat f$, file_list$(file_idx%)
+  Local ext$ = LCase$(file.get_extension$(f$))
+  sound.term()
+
+  If ext$ = ".flac" And sys.is_device%("pm*") Then
+    ' Free enough memory to play .flac file.
+    Local old_cur_page% = cur_page%
+    Erase file_list$()
+    Erase menu.items$()
+    FrameBuffer Close F
+  EndIf
+
+  Select Case ext$
+    Case ".flac"
+      Play Flac f$, play_stop_cb
+    Case ".mod"
+      ' TODO: Currently no mechanism to determine end of .mod file.
+      Play Modfile f$
+    Case ".wav"
+      Play Wav f$, play_stop_cb
+    Case Else
+      Error "Invalid state"
+  End Select
+
+  ctrl.wait_until_idle(menu.ctrl$)
+  Do While key% = 0
+    If sys.break_flag% Then menu.on_break()
+    Call menu.ctrl$, key%
+    If Not key% Then keys_cursor(key%)
+  Loop
+
+  play_stop_cb()
+
+  If ext$ = ".flac" And sys.is_device%("pm*") Then
+    ' Restore state after playing .flac file.
+    FrameBuffer Create
+    FrameBuffer Write F
+    Dim file_list$(MAX_FILES + 1) Length 64
+    Dim menu.items$(15) Length 127
+    update_files()
+    cur_page% = old_cur_page%
+    update_menu_data()
+    menu.render(1)
+  EndIf
+
+  ' TODO: This is a recursive call and may potentially blow up.
+  menu.process_key(key%)
+End Sub
+
+Sub play_stop_cb()
+  Play Stop
+  sound.init()
 End Sub
 
 Sub on_start()
