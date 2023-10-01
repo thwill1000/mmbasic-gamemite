@@ -7,6 +7,8 @@ Version 1.1.0 - 1-Oct-2023:
    128K buffer for playing .mod files.
  - Startup screen now highlights when non-GameMite firmware is being used, or
    when the versions of the GameMite firmware and MMBasic program suite differ.
+ - File browser now supports 500 files per directory, previously it supported
+   a maximum of 100.
  - Fixed bug in PicoVaders that caused it to crash if its intro screen was
    allowed to run to completion.
  - Partially crunched MMBasic program suite to make room for 128K MODBUFF on

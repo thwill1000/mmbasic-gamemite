@@ -37,7 +37,7 @@ If sys.is_device%("mmb4w", "cmm2*") Then Option Console Serial
 Mode 7
 Page Write 1
 
-Const MAX_FILES = 100
+Const MAX_FILES = 500
 Const FILES_PER_PAGE = 12
 
 If sys.is_device%("gamemite") Then
@@ -77,15 +77,15 @@ Sub update_files()
   If Mm.ErrNo Then num_files% = -1 : Exit Sub
 
   num_files% = file.get_files%(drives$(drive_idx%), "*", "all", file_list$())
-  If (num_files% > 100) Then
-    file_list$(100) = "... and " + Str$(num_files% - 100) + " more"
-    num_files% = 101
+  If (num_files% > MAX_FILES) Then
+    file_list$(MAX_FILES) = "... and " + Str$(num_files% - MAX_FILES) + " more"
+    num_files% = MAX_FILES + 1
   EndIf
 
   ' Shift all the enties in file_list$() one element to the right.
   If Len(file.get_parent$(drives$(drive_idx%))) Then
     Const p% = Peek(VarAddr file_list$())
-    Memory Copy p%, p% + 65, 65 * 101
+    Memory Copy p%, p% + 65, 65 * (MAX_FILES + 1)
     file_list$(0) = ".."
     Inc num_files%
   EndIf
