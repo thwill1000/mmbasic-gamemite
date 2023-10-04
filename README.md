@@ -71,6 +71,11 @@ Special thanks to @Martin H, @Mozzie, @Volhout and our other friends from https:
      * [Yellow River Kingdom](https://github.com/thwill1000/mmbasic-kingdom) - by Tom Hartley, Jerry Temple-Fry and Richard G Warner
      * [3D Maze](https://github.com/thwill1000/mmbasic-third-party/tree/main/3d-maze) - by Martin Herhaus
 
+## Other programs to download and try
+
+ * [Snake](https://github.com/thwill1000/mmbasic-third-party/tree/main/snake) - game by @Volhout
+ * [Circle](https://github.com/thwill1000/mmbasic-third-party/tree/main/circle) - game by @Volhout 
+
 ## FAQ
 
 **1. What is a PicoMite ?**
