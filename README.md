@@ -55,8 +55,8 @@ Special thanks to @Martin H, @Mozzie, @Volhout and our other friends from https:
 
 ## Hardware
 
- * [Schematic](hardware/pcb-1-3-1/gamemite-schematic-1-3-1.jpg)
- * [PCB Gerbers](hardware/pcb-1-3-1/gamemite-gerbers-1-3-1.zip)
+ * [Schematic](hardware/pcb-1-3-2/gamemite-schematic-1-3-2.jpg)
+ * [PCB Gerbers](hardware/pcb-1-3-2/gamemite-gerbers-1-3-2.zip)
 
 ## Firmware & Software
 
