@@ -12,12 +12,12 @@ Option Explicit On
 
 #Include "splib/system.inc"
 
-'!if defined PICOMITEVGA
+'!if defined(PICOMITEVGA)
   '!replace { Page Copy 1 To 0 , B } { FrameBuffer Copy F , N , B }
   '!replace { Page Write 1 } { FrameBuffer Write F }
   '!replace { Page Write 0 } { FrameBuffer Write N }
   '!replace { Mode 7 } { Mode 2 : FrameBuffer Create }
-'!elif defined PICOMITE
+'!elif defined(PICOMITE) || defined(GAMEMITE)
   '!replace { Page Copy 1 To 0 , B } { FrameBuffer Copy F , N }
   '!replace { Page Write 1 } { FrameBuffer Write F }
   '!replace { Page Write 0 } { FrameBuffer Write N }
@@ -59,6 +59,8 @@ main()
 Error "Invalid state"
 
 Sub main()
+  '!dynamic_call ctrl.gamemite
+  '!dynamic_call keys_cursor_ext
   Const ctrl$ = Choice(sys.is_device%("gamemite"), "ctrl.gamemite", "keys_cursor_ext")
   ctrl.init_keys()
   sys.override_break()
@@ -147,22 +149,24 @@ Sub update_menu_data()
   num_pages% = num_files% \ FILES_PER_PAGE + ((num_files% Mod FILES_PER_PAGE) > 0)
 End Sub
 
+'!dynamic_call menu_cb
 Sub menu_cb(cb_data$)
   Select Case Field$(cb_data$, 1, "|")
     Case "selection_changed"
       ' Do nothing.
     Case "render"
-      render_cb(cb_data$)
+      on_render(cb_data$)
     Case Else
       Error "Invalid state"
   End Select
 End Sub
 
-Sub render_cb(cb_data$)
+Sub on_render(cb_data$)
   Const s$ = "Page " + Str$(cur_page%) + "/" + Str$(num_pages%)
   twm.print_at(menu.width% - Len(s$) - 2, menu.height% - 2, s$)
 End Sub
 
+'!dynamic_call cmd_drive
 Sub cmd_drive(key%)
   Local update% = 0
 
@@ -196,6 +200,7 @@ Sub cmd_drive(key%)
   EndIf
 End Sub
 
+'!dynamic_call cmd_open
 Sub cmd_open(key%)
   Select Case key%
     Case ctrl.A, ctrl.SELECT
@@ -324,6 +329,7 @@ Sub play_music(file_idx%)
   menu.process_key(key%)
 End Sub
 
+'!dynamic_call play_stop_cb
 Sub play_stop_cb()
   Play Stop
   sound.init()

@@ -12,12 +12,12 @@ Option Explicit On
 
 #Include "splib/system.inc"
 
-'!if defined PICOMITEVGA
+'!if defined(PICOMITEVGA)
   '!replace { Page Copy 1 To 0 , B } { FrameBuffer Copy F , N , B }
   '!replace { Page Write 1 } { FrameBuffer Write F }
   '!replace { Page Write 0 } { FrameBuffer Write N }
   '!replace { Mode 7 } { Mode 2 : FrameBuffer Create }
-'!elif defined PICOMITE
+'!elif defined(PICOMITE) || defined(GAMEMITE)
   '!replace { Page Copy 1 To 0 , B } { FrameBuffer Copy F , N }
   '!replace { Page Write 1 } { FrameBuffer Write F }
   '!replace { Page Write 0 } { FrameBuffer Write N }
@@ -39,6 +39,8 @@ main()
 Error "Invalid state"
 
 Sub main()
+  '!dynamic_call ctrl.gamemite
+  '!dynamic_call keys_cursor_ext
   Const ctrl$ = Choice(sys.is_device%("gamemite"), "ctrl.gamemite", "keys_cursor_ext")
   ctrl.init_keys()
   sys.override_break()
@@ -53,6 +55,7 @@ Sub main()
   menu.main_loop()
 End Sub
 
+'!dynamic_call menu_cb
 Sub menu_cb(cb_data$)
   Select Case Field$(cb_data$, 1, "|")
     Case "render"
@@ -72,6 +75,7 @@ Sub on_render()
   Text 160, y%, Chr$(&h9F), CT, 1, 1, Rgb(Yellow)
 End Sub
 
+'!dynamic_call cmd_run
 Sub cmd_run(key%)
   Select Case key%
     Case ctrl.A, ctrl.START, ctrl.SELECT
@@ -103,6 +107,7 @@ Sub cmd_run(key%)
     End Select
 End Sub
 
+'!dynamic_call cmd_exit
 Sub cmd_exit(key%)
   Select Case key%
     Case ctrl.A, ctrl.START, ctrl.SELECT

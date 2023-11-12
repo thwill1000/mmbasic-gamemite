@@ -8,7 +8,7 @@ Option Base 0
 Option Default None
 Option Explicit 1
 
-Const VERSION = 101300 ' 1.1.0
+Const VERSION = 102201 ' 1.2.0 RC 1
 
 '!define NO_INCLUDE_GUARDS
 
