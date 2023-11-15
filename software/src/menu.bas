@@ -72,6 +72,7 @@ Sub read_programs()
     Print #1, "Sound Test,sound-demo.bas"
     Print #1, "Lazer Cycle,lazer-cycle.bas"
     Print #1, "PicoVaders,pico-vaders.bas"
+    Print #1, "The Circle Game,circle.bas"
     Print #1, "Yellow River Kingdom,kingdom.bas"
     Print #1, "3D Maze,3d-maze.bas"
     Print #1, "File Browser,fm.bas"
