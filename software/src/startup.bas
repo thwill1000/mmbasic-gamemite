@@ -8,69 +8,61 @@ Option Base 0
 Option Default None
 Option Explicit 1
 
-Const VERSION = 102201 ' 1.2.0 RC 1
-
 '!define NO_INCLUDE_GUARDS
 
 #Include "splib/system.inc"
+#Include "splib/gamemite.inc"
 
-'!if defined(PICOMITEVGA)
-  '!replace { Mode 7 } { Mode 2 }
-'!elif defined(PICOMITE) || defined(GAMEMITE)
-  '!replace { Mode 7 } { }
-'!endif
+Const CONFIG$ = gamemite.file$(".startup")
+Const VERSION = Val(sys.get_config$("version", "0", CONFIG$))
+Const MIN_FIRMWARE = Val(sys.get_config$("firmware", "9999999", CONFIG$))
+Const FW = Mm.Info(FontWidth), FH = Mm.Info(FontHeight)
 
-Mode 7
+Dim s$, y% = FH
+
+FrameBuffer Create
+FrameBuffer Write F
 Cls
 
-Const FW = Mm.Info(FontWidth), FH = Mm.Info(FontHeight)
-Dim s$ = "Game*Mite v" + sys.format_version$(VERSION)
-Const x% = (Mm.HRes - Len(s$) * FW) \ 2
-Dim y% = 6 * FH
-Text x%, y%, Left$(s$, 4), LM, 1, 1
-Text x% + 4 * FW + 1, y%, Chr$(&h9F), LM, 1, 1
-Text x% + 5 * FW + 3, y%, Mid$(s$, 6), LM, 1, 1
+' Splash image.
+Load Image gamemite.file$(sys.get_config$("splash", "unknown", CONFIG$)), 32, y%
+Inc y%, 64 + FH
+
+' Game*Mite version.
+Text 320 - FW, 240 - FH, "v" + sys.format_version$(VERSION), RB
 Inc y%, FH + 1
 
-If Mm.Device$ <> "PicoMite" Or ((sys.FIRMWARE < 5070900) And (sys.FIRMWARE <> 5070800)) Then
+' Game*Mite copyright.
+Text 160, y%, sys.get_config$("copyright", "unknown", CONFIG$), CM
+Inc y%, 2 * FH
+
+If Mm.Device$ <> "PicoMite" Or sys.FIRMWARE < MIN_FIRMWARE Then
   Inc y%, FH + 1
   Text 160, y%, "ERROR: Requires PicoMite firmware", CM, , , Rgb(Red)
   Inc y%, FH + 1
-  Text 160, y%, "        5.07.08 or later         ", CM, , , Rgb(Red)
+  Text 160, y%, "        " + sys.format_firmware_version$(MIN_FIRMWARE) + " or later         ", CM, , , Rgb(Red)
   End
 EndIf
 
-Text 160, y%, "(c) 2023 Thomas Hugo Williams", CM
-Inc y%, 2 * FH
-
+' MMBasic copyright.
 If Mm.Device$ = "PicoMite" Then Font 7
-s$ = "Not running GameMite firmware"
-If Mm.Info(Device X) = "GameMite" Then
-  If Mm.Info(Version X) = VERSION Then
-    s$ = ""
-  Else
-    s$ = "GameMite firmware v" + sys.format_version$(Mm.Info(Version X))
-  EndIf
-EndIf
-If Len(s$) Then
-  Text 160, y%, s$, CM, , , Rgb(Green)
-  Inc y%, FH + 1
-EndIf
-
 s$ = "PicoMite MMBasic Version " + sys.format_firmware_version$()
 Text 160, y%, s$, CM
 Inc y%, FH + 1
-
-Text 160, y%, "Copyright 2011-2023 Geoff Graham", CM
+Text 160, y%, sys.get_config$("mmbasic_copyright_1", "unknown", CONFIG$), CM
 Inc y%, FH + 1
-
-Text 160, y%, "Copyright 2016-2023 Peter Mather", CM
+Text 160, y%, sys.get_config$("mmbasic_copyright_2", "unknown", CONFIG$), CM
 Font 1
 Inc y%, 2 * FH
 
-Dim f$ = "A:/GameMite/menu.bas", z% = Mm.Info(Exists File f$)
-If Not z% Then f$ = "B:/GameMite/menu.bas" : z% = Mm.Info(Exists File f$)
+Const f$ = gamemite.file$(sys.get_config$("menu", "unknown", CONFIG$))
+Const z% = Mm.Info(Exists File f$)
 Dim msg$ = Choice(z%, "Loading menu ...", "Menu program not found!")
 Text 160, y%, msg$, CM
+
+FrameBuffer Copy F, N
+FrameBuffer Write N
+
 Pause 500
 If Len(f$) Then Run f$ Else End
+
