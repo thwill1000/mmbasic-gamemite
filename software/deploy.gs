@@ -1,5 +1,6 @@
 break
 xsend src/.spconfig A:/.spconfig
+rrm A:/.gm-menu
 rmkdir A:/GameMite
 xsend src/splash.bmp A:/GameMite/splash.bmp
 xsend -t="-T -n -e=1 -i=1 -DGAMEMITE" src/startup.bas A:/GameMite/startup.bas

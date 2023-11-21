@@ -2,7 +2,7 @@
 ' License MIT <https://opensource.org/licenses/MIT>
 ' For MMBasic 5.07
 
-' Limited "File Manager" for the GameMite.
+' Limited "File Manager" for the Game*Mite.
 
 Option Base 0
 Option Default None
@@ -93,6 +93,7 @@ Sub update_files()
     Inc num_files%
   EndIf
 
+  num_pages% = num_files% \ FILES_PER_PAGE + ((num_files% Mod FILES_PER_PAGE) > 0)
   cur_page% = 1
 End Sub
 
@@ -145,8 +146,6 @@ Sub update_menu_data()
       If Len(Field$(menu.items$(menu.selection%), 2, "|")) Then Exit For
     Next
   EndIf
-
-  num_pages% = num_files% \ FILES_PER_PAGE + ((num_files% Mod FILES_PER_PAGE) > 0)
 End Sub
 
 '!dynamic_call menu_cb
