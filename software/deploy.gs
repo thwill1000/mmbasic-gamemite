@@ -1,5 +1,5 @@
 break
-xsend src/.spconfig A:/.spconfig
+xsend src/dot_spconfig A:/.spconfig
 rrm A:/.gm-menu
 rmkdir A:/GameMite
 xsend src/splash.bmp A:/GameMite/splash.bmp
