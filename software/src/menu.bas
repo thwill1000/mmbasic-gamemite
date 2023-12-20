@@ -195,10 +195,12 @@ End Sub
 
 Sub run_program(orig$)
   Const f$ = gamemite.file$(orig$)
-
-  If Not Mm.Info(Exists File f$) Then
+  Local x%
+  On Error Skip ' Skip "SD Card not found" error
+  x% = Mm.Info(Exists File f$)
+  If Not x% Then
     Const msg$ = str.decode$("Program not found:\n\n" + f$)
-    Local tmp% = menu.msgbox%(msg$, menu.OK_BTN$(), 0)
+    Local tmp% = menu.msgbox%(msg$, menu.OK_BTN$(), 0, twm.RED%)
     twm.switch(menu.win1%)
     twm.redraw()
     on_render()
