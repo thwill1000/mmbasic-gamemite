@@ -1,5 +1,4 @@
 break
-xsend src/dot_spconfig A:/.spconfig
 rrm A:/.gm-menu
 rmkdir A:/GameMite
 xsend src/splash.bmp A:/GameMite/splash.bmp
@@ -19,3 +18,4 @@ rex flash erase 1
 rex load "A:/GameMite/startup.bas"
 rex flash save 1
 rex option autorun 1, noreset
+rex option platform "Game*Mite"
