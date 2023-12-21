@@ -70,13 +70,13 @@ Sub read_programs()
   Const f$ = sys.HOME$() + "/.gm-menu"
   If Not Mm.Info(Exists File f$) Then
     Open f$ For Output As #1
-    Print #1, "Controller Test,ctrl-demo-2.bas"
-    Print #1, "Sound Test,sound-demo.bas"
+    Print #1, "Circle One,circle.bas"
     Print #1, "Lazer Cycle,lazer-cycle.bas"
     Print #1, "PicoVaders,pico-vaders.bas"
-    Print #1, "The Circle Game,circle.bas"
     Print #1, "Yellow River Kingdom,kingdom.bas"
     Print #1, "3D Maze,3d-maze.bas"
+    Print #1, "Controller Test,ctrl-demo-2.bas"
+    Print #1, "Sound Test,sound-demo.bas"
     Print #1, "File Browser,fm.bas"
     Close #1
   EndIf

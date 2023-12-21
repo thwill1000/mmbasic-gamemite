@@ -24,7 +24,7 @@ Version 1.2 RC 1 - 21-Dec-2023:
      in "A:/GameMite" and if not found there, in "B:/GameMite".
  - Changed startup screen to include image/logo
    - and made easier to configure via ".startup" file.
- - Added @Volhout's "Circle" game (v1.1.0) to the program suite.
+ - Added @Volhout's "Circle One" game (v1.1.0) to the program suite.
  - Updated program suite to use latest version of 'splib':
      System software => v1.2 RC 1
      PicoVaders => v1.1.2
