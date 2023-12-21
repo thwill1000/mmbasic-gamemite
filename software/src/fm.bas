@@ -1,6 +1,6 @@
 ' Copyright (c) 2023 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
-' For MMBasic 5.07
+' For MMBasic 5.08
 
 ' Limited "File Manager" for the Game*Mite.
 
@@ -32,13 +32,15 @@ Option Explicit On
 #Include "splib/menu.inc"
 #Include "splib/gamemite.inc"
 
-If sys.is_device%("mmb4l") Then Option CodePage CMM2
-If sys.is_device%("mmb4w", "cmm2*") Then Option Console Serial
+'!if !defined(GAMEMITE)
+If sys.is_platform%("mmb4l") Then Option CodePage CMM2
+If sys.is_platform%("mmb4w", "cmm2*") Then Option Console Serial
+'!endif
 
 Const MAX_FILES = 500
 Const FILES_PER_PAGE = 12
 
-If sys.is_device%("gamemite") Then
+If sys.PLATFORM$() = "Game*Mite" Then
   Const num_drives% = 2
   Dim drives$(num_drives% - 1) = ("A:/", "B:/")
 Else
@@ -61,7 +63,7 @@ Error "Invalid state"
 Sub main()
   '!dynamic_call ctrl.gamemite
   '!dynamic_call keys_cursor_ext
-  Const ctrl$ = Choice(sys.is_device%("gamemite"), "ctrl.gamemite", "keys_cursor_ext")
+  Const ctrl$ = Choice(sys.PLATFORM$() = "Game*Mite", "ctrl.gamemite", "keys_cursor_ext")
   ctrl.init_keys()
   sys.override_break()
   Call ctrl$, ctrl.OPEN
@@ -134,7 +136,7 @@ Sub update_menu_data()
   ' Fill remaining entries with blanks.
   For i% = i% To Bound(menu.items$(), 1) - 1 : menu.items$(i%) = "|" : Next
 
-  If sys.is_device%("gamemite") Then
+  If sys.PLATFORM$() = "Game*Mite" Then
     menu.items$(i%) = str.decode$("Use \x95 \x94 \x92 \x93 and SELECT|")
   Else
     menu.items$(i%) = str.decode$("Use \x95 \x94 \x92 \x93 and SPACE to select|")
@@ -283,7 +285,7 @@ Sub play_music(file_idx%)
   Local ext$ = LCase$(file.get_extension$(f$))
   sound.term()
 
-  If ext$ = ".flac" And sys.is_device%("pm*") Then
+  If ext$ = ".flac" And InStr(Mm.Device$, "PicoMite") Then
     ' Free enough memory to play .flac file.
     Local old_cur_page% = cur_page%
     Erase file_list$()
@@ -312,7 +314,7 @@ Sub play_music(file_idx%)
 
   play_stop_cb()
 
-  If ext$ = ".flac" And sys.is_device%("pm*") Then
+  If ext$ = ".flac" And InStr(Mm.Device$, "PicoMite") Then
     ' Restore state after playing .flac file.
     FrameBuffer Create
     FrameBuffer Write F

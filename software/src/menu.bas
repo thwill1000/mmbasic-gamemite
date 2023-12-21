@@ -1,6 +1,6 @@
 ' Copyright (c) 2023 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
-' For MMBasic 5.07
+' For MMBasic 5.08
 
 ' Boot menu for the Game*Mite.
 
@@ -41,8 +41,10 @@ Dim num_progs%
 Dim cur_page%
 Dim num_pages%
 
-If sys.is_device%("mmb4l") Then Option CodePage MMB4L
-If sys.is_device%("mmb4w", "cmm2*") Then Option Console Serial
+'!if !defined(GAMEMITE)
+If sys.is_platform%("mmb4l") Then Option CodePage MMB4L
+If sys.is_platform%("mmb4w", "cmm2*") Then Option Console Serial
+'!endif
 Mode 7
 Page Write 1
 
@@ -52,7 +54,7 @@ Error "Invalid state"
 Sub main()
   '!dynamic_call ctrl.gamemite
   '!dynamic_call keys_cursor_ext
-  Const ctrl$ = Choice(sys.is_device%("gamemite"), "ctrl.gamemite", "keys_cursor_ext")
+  Const ctrl$ = Choice(sys.PLATFORM$() = "Game*Mite", "ctrl.gamemite", "keys_cursor_ext")
   ctrl.init_keys()
   sys.override_break()
   Call ctrl$, ctrl.OPEN
@@ -133,7 +135,7 @@ Sub update_menu_data()
   menu.items$(i%) = "Use "
   If num_pages% > 1 Then Cat menu.items$(i%), "\x95 \x94 "
   Cat menu.items$(i%), "\x92 \x93 and "
-  Cat menu.items$(i%), Choice(sys.is_device%("gamemite"), "SELECT", "and SPACE to select")
+  Cat menu.items$(i%), Choice(sys.PLATFORM$() = "Game*Mite", "SELECT", "and SPACE to select")
   Cat menu.items$(i%), "|"
   menu.items$(i%) = str.decode$(menu.items$(i%))
   Inc i%
