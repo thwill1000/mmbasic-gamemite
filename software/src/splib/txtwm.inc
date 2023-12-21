@@ -467,11 +467,11 @@ Sub twm.redraw()
       Text vx%, vy%, ch$,,,, twm.fg%(at%), twm.bg%(at%)
       If at% And &b01000000 Then Text vx%+1, vy%, ch$,,,, twm.fg%(at%), -1
       Inc vx%, twm.fw%
-    Next x%
+    Next ' x%
     Inc pa%, twm.w%
     Inc pc%, twm.w%
     Inc vy%, twm.fh%
-  Next y%
+  Next ' y%
 End Sub
 
 Sub twm.cls(x%, y%, w%, h%)
@@ -572,7 +572,7 @@ End Function
 
 ' Sends VT100 control-code to hide/show cursor to the serial console.
 Sub twm.enable_cursor(z%)
-'!if not defined(PICOMITE)
+'!if !defined(PICOMITE) && !defined(GAMEMITE)
   Local s$ = LCase$(Mm.Info$(Option Console))
   Select Case s$
     Case "screen" : Exit Sub
@@ -587,7 +587,7 @@ Sub twm.enable_cursor(z%)
   End Select
 '!endif
   Print Chr$(27) Choice(z%, "[?25h", "[?25l");
-'!if not defined(PICOMITE)
+'!if !defined(PICOMITE) && !defined(GAMEMITE)
   If s$ = "both" Then Option Console Both
 '!endif
 
@@ -603,7 +603,7 @@ End Sub
 ' Sounds the console "bell".
 Sub twm.bell()
   Play Tone 800, 800, 200
-'!if not defined(PICOMITE)
+'!if !defined(PICOMITE) && !defined(GAMEMITE)
   Local s$ = LCase$(Mm.Info$(Option Console))
   Select Case s$
     Case "screen" : Exit Sub

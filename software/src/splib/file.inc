@@ -9,7 +9,7 @@ sys.provides("file")
 If sys.err$ <> "" Then Error sys.err$
 '!endif
 
-Const file.SEPARATOR = sys.string_prop$("separator")
+Const file.SEPARATOR = sys.SEPARATOR$()
 
 ' Gets the number of files in directory d$ whose names match pattern$.
 '
@@ -90,7 +90,7 @@ Function file.find$(path$, pattern$, type$)
     On Error Skip
     Erase file.find_stack$()
     On Error Clear
-    If sys.is_device%("mmb4l", "mmb4w") Then
+    If sys.is_platform%("mmb4l", "mmb4w") Then
       Dim file.find_stack$(1000) Length 255
     Else
       Dim file.find_stack$(500) Length 128
@@ -255,9 +255,9 @@ Function file.get_canonical$(f$)
       tmp$ = "A:" + tmp$
     Case "~"
       If tmp$ = "~" Then
-        tmp$ = sys.string_prop$("home")
+        tmp$ = sys.HOME$()
       ElseIf Left$(tmp$, 2) = "~/" Or Left$(tmp$, 2) = "~\" Then
-        tmp$ = sys.string_prop$("home") + Mid$(tmp$, 2)
+        tmp$ = sys.HOME$() + Mid$(tmp$, 2)
       Else
         tmp$ = Cwd$ + "/" + tmp$
       EndIf
@@ -380,11 +380,9 @@ End Function
 ' Gets the name of file/directory 'f$' minus any path information.
 Function file.get_name$(f$)
   Local i%
-
   For i% = Len(f$) To 1 Step -1
     If InStr("/\", Mid$(f$, i%, 1)) > 0 Then Exit For
-  Next i%
-
+  Next
   file.get_name$ = Mid$(f$, i% + 1)
 End Function
 
@@ -404,7 +402,7 @@ Function file.get_parent$(f$)
   Local i%
   For i% = Len(f$) To 1 Step -1
     If InStr("/\", Mid$(f$, i%, 1)) > 0 Then Exit For
-  Next i%
+  Next
   If i% > 0 Then file.get_parent$ = Left$(f$, i% - 1)
   If file.get_parent$ = "" Then
     If InStr("/\", Left$(f$, 1)) Then file.get_parent$ = Left$(f$, 1)
