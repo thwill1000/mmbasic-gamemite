@@ -16,7 +16,7 @@ Option Explicit 1
 
 Const NAME$ = "GameMite"
 Const VERSION% = get_version%()
-Const VERSION_STR$ = sys.format_version$(VERSION%)
+Const VERSION_STR$ = str.replace$(sys.format_version$(VERSION%), " ", "-")
 Const NAME_AND_VERSION$ = NAME$ + "-" + VERSION_STR$
 Const BUILD_DIR$ = "build/" + NAME$
 Const SOFTWARE_DIR$ = "/mmbasic-gamemite/software/"
@@ -26,8 +26,10 @@ Const ZIP_FILE$ = NAME_AND_VERSION$ + "-appendix-d.zip"
 
 If Right$(Mm.Info$(Path), Len(SOFTWARE_DIR$)) <> SOFTWARE_DIR$ Then Error "Invalid path"
 
+? "Version:"
+? "  " + VERSION_STR$
 create_build_dir()
-build_firmware()
+' build_firmware() - No longer necessary,  using standard PicoMite firmware.
 build_software()
 create_archive()
 copy_archive()
@@ -35,24 +37,7 @@ copy_archive()
 End
 
 Function get_version%()
-  Open "src/startup.bas" For Input As #1
-  Local i%, s$
-  Do While Not Eof(#1)
-    Line Input #1, s$
-    i% = InStr(s$, " VERSION")
-    If i% Then
-      Do While i% <= Len(s$)
-        Select Case Mid$(s$, i%, 1)
-          Case "0" To "9": Exit Do
-        End Select
-        Inc i%
-      Loop
-      If i% > Len(s$) Then Exit Do
-      get_version% = Val(Mid$(s$, i%))
-      Exit Function
-    EndIf
-  Loop
-  Error "VERSION not found"
+  get_version% = Val(sys.get_config$("version", "1", "src/dot_startup"))
 End Function
 
 Sub create_build_dir()
@@ -77,13 +62,23 @@ Sub build_software()
     Read src$, dst$
     If Not Len(src$) Then Exit Do
     dst$ = str.replace$(dst$, "${BUILD}", BUILD_DIR$)
-    trans_and_copy(src$, dst$)
+    If file.get_extension$(src$) = ".bas" Then
+      trans_and_copy(src$, dst$)
+    Else
+      just_copy(src$, dst$)
+    EndIf
   Loop
 End Sub
 
 Sub trans_and_copy(src$, dst$)
-  ? "  " src$ " => " dst$ " ..."
-  Local cmd$ = "sptrans -q -n -e=1 -i=1 -DGAMEMITE " + src$ + " " + dst$
+  ? "  TRANSPILE " src$ " => " dst$ " ..."
+  Local cmd$ = "sptrans -q -T -n -e=1 -i=1 -DGAMEMITE " + src$ + " " + dst$
+  System cmd$
+End Sub
+
+Sub just_copy(src$, dst$)
+  ? "  COPY " src$ " => " dst$ " ..."
+  Local cmd$ = "cp " + src$ + " " + dst$
   System cmd$
 End Sub
 
@@ -101,6 +96,10 @@ Sub copy_archive()
   Copy src$ To dst$
 End Sub
 
+Data "src/dot_startup", "${BUILD}/.startup"
+Data "src/LICENSE", "${BUILD}/LICENSE"
+Data "../ChangeLog", "${BUILD}/ChangeLog"
+Data "src/splash.bmp", "${BUILD}/splash.bmp"
 Data "src/fm.bas", "${BUILD}/fm.bas"
 Data "src/install-a.bas", "${BUILD}/install-a.bas"
 Data "src/menu.bas", "${BUILD}/menu.bas"
@@ -108,6 +107,8 @@ Data "src/startup.bas", "${BUILD}/startup.bas"
 Data "../../mmbasic-sptools/src/splib/examples/ctrl-demo-2.bas", "${BUILD}/ctrl-demo-2.bas"
 Data "../../mmbasic-sptools/src/splib/examples/sound-demo.bas", "${BUILD}/sound-demo.bas"
 Data "../../mmbasic-lazer-cycle/src/lazer-cycle.bas", "${BUILD}/lazer-cycle.bas"
+Data "../../mmbasic-third-party/circle/circle-1p-gm.bas", "${BUILD}/circle.bas"
+Data "../../mmbasic-third-party/circle/circle.mod", "${BUILD}/circle.mod"
 Data "../../mmbasic-third-party/pico-vaders/pico-vaders.bas", "${BUILD}/pico-vaders.bas"
 Data "../../mmbasic-third-party/3d-maze/3d-maze.bas", "${BUILD}/3d-maze.bas"
 Data "../../mmbasic-kingdom/src/kingdom.bas", "${BUILD}/kingdom.bas"
