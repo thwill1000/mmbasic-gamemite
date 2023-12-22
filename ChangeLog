@@ -12,7 +12,7 @@ Version 1.2 RC 1 - 21-Dec-2023:
      OPTION SDCARD GP22
      OPTION AUDIO GP20,GP21
      OPTION MODBUFF ENABLE 192
-     OPTION PLATFORM Game*Mite
+     OPTION PLATFORM "Game*Mite"
  - Changed menu program to support multiple pages and be configurable
    via the "A:/.gm-menu" file:
    - This file will be created on startup if not present.
