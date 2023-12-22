@@ -4,7 +4,7 @@
 ' License MIT <https://opensource.org/licenses/MIT>
 ' For MMB4L 0.6.0
 
-' Utility to create installation package for GameMite.
+' Utility to create installation package for Game*Mite.
 
 Option Base 0
 Option Default None
@@ -97,8 +97,8 @@ Sub copy_archive()
 End Sub
 
 Data "src/dot_startup", "${BUILD}/.startup"
-Data "src/LICENSE", "${BUILD}/LICENSE"
-Data "../ChangeLog", "${BUILD}/ChangeLog"
+Data "src/LICENSE", "${BUILD}/LICENSE.txt"
+Data "../ChangeLog", "${BUILD}/ChangeLog.txt"
 Data "src/splash.bmp", "${BUILD}/splash.bmp"
 Data "src/fm.bas", "${BUILD}/fm.bas"
 Data "src/install-a.bas", "${BUILD}/install-a.bas"
