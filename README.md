@@ -1,6 +1,6 @@
 # Game★Mite
 
-The GameMite is a “build it yourself” handheld game console based on the Raspberry Pi Pico microcontroller running a customised version of the [PicoMite](https://geoffg.net/picomite.html) firmware.
+The Game★Mite is a “build it yourself” handheld game console based on the Raspberry Pi Pico microcontroller running the [PicoMite](https://geoffg.net/picomite.html) firmware.
 
 <img src="images/gamemite-1-3-1.jpg" height="500" alt="Photo of GameMite version 1.3.1">
 
@@ -15,7 +15,9 @@ The GameMite is a “build it yourself” handheld game console based on the Ras
 
 ## Photos
 
-<img src="images/gm-menu.jpg" width="320" alt="Boot menu screenshot"> <img src="images/gm-lazercycle.jpg" width="320" alt="Lazer cycle screenshot"> <img src="images/gm-picovaders.jpg" width="320" alt="Picovaders screenshot">
+<img src="images/gm-1-2-RC-1-splash.jpg" width="320" alt="Splash screen"> <img src="images/gm-1-2-RC-1-menu.jpg" width="320" alt="Menu screen">
+<img src="images/gm-circle-splash.jpg" width="320" alt="Circle One splash screen"> <img src="images/gm-circle-game.jpg" width="320" alt="Circle One screenshot">
+<img src="images/gm-lazercycle.jpg" width="320" alt="Lazer cycle screenshot"> <img src="images/gm-picovaders.jpg" width="320" alt="PicoVaders screenshot">
 <img src="images/gm-kingdom.jpg" width="320" alt="Yellow River Kingdom screenshot"> <img src="images/gm-maze.jpg" width="320" alt="3D Maze screenshot"> <img src="images/gm-files.jpg" width="320" alt="File Browser screenshot">
 
 ## YouTube video
@@ -28,16 +30,16 @@ This video shows the Mark-I prototype.
 
 ## Copyright and Acknowledgements
 
-GameMite hardware © 2023 Thomas Hugo Williams (@thwill):
+Game★Mite hardware © 2023 Thomas Hugo Williams (@thwill):
  * Original concept and prototype by Thomas Hugo Williams based on the “PicoMite Backpack” by Mick Ames (@Mixtel90).
  * PCB designed by Mick Gulovsen (@bigmik) hindered by Thomas Hugo Williams and Bill McKinley (@Turbo46).
  * Published under the CC BY 4.0 license.
  * https://www.sockpuppetstudios.com
 
-GameMite MMBasic program suite by Thomas Hugo Williams and friends:
+Game★Mite MMBasic program suite by Thomas Hugo Williams and friends:
  * See individual programs for copyright and licensing specifics.
 
-GameMite User Manual © 2023 Thomas Hugo Williams, Mick Gulovsen and Bill McKinley
+Game★Mite User Manual © 2023 Thomas Hugo Williams, Mick Gulovsen and Bill McKinley
  * Published under the CC BY 4.0 license.
  * The instructions for loading the firmware and attaching a terminal emulator were adapted with permission from the PicoMite User Manual: https://geoffg.net/Downloads/picomite/PicoMite_User_Manual.pdf.
 
@@ -45,7 +47,6 @@ PicoMite/MMBasic firmware:
  * https://geoffg.net/picomite.html
  * Copyright 2011-2023 Geoff Graham
  * Copyright 2016-2023 Peter Mather
- * Customisations for GameMite by Thomas Hugo Williams - https://github.com/thwill1000/picomite-firmware/tree/gamemite.
 
 Special thanks to @Martin H, @Mozzie, @Volhout and our other friends from https://www.thebackshed.com/forum/Microcontrollers.
 
@@ -61,11 +62,11 @@ Special thanks to @Martin H, @Mozzie, @Volhout and our other friends from https:
 ## Firmware & Software
 
  * Installations:
-     * [GameMite-1.1.0-full.zip](download/GameMite-1.1.0-full.zip) - Standard installation
-     * [GameMite-1.1.0-appendix-d.zip](download/GameMite-1.1.0-appendix-d.zip) - Alternative "Appendix D" installation
+     * [GameMite-1.2-RC-1-full.uf2.zip](https://github.com/thwill1000/mmbasic-gamemite/releases/download/v1.2-RC-1/GameMite-1.2-RC-1-full.uf2.zip) - Standard installation
+     * [GameMite-1.2-RC-1-appendix-d.zip](https://github.com/thwill1000/mmbasic-gamemite/releases/download/v1.2-RC-1/GameMite-1.2-RC-1-appendix-d.zip) - Alternative "Appendix D" installation
  * Source code:
-     * [Customised version of PicoMite firmware](https://github.com/thwill1000/picomite-firmware/tree/gamemite) - by Geoff Graham, Peter Mather and Thomas Hugo Williams
-     * [GameMite "system" programs](software/src) - by Thomas Hugo Williams
+     * [Game★Mite system software](software/src) - by Thomas Hugo Williams
+     * [Circle One](https://github.com/thwill1000/mmbasic-third-party/tree/main/circle) - by @Volhout 
      * [Lazer Cycle](https://github.com/thwill1000/mmbasic-lazer-cycle) - by Thomas Hugo Williams
      * [PicoVaders](https://github.com/thwill1000/mmbasic-third-party/tree/main/pico-vaders) - by Martin Herhaus
      * [Yellow River Kingdom](https://github.com/thwill1000/mmbasic-kingdom) - by Tom Hartley, Jerry Temple-Fry and Richard G Warner
@@ -73,8 +74,7 @@ Special thanks to @Martin H, @Mozzie, @Volhout and our other friends from https:
 
 ## Other programs to download and try
 
- * [Snake](https://github.com/thwill1000/mmbasic-third-party/tree/main/snake) - game by @Volhout
- * [Circle](https://github.com/thwill1000/mmbasic-third-party/tree/main/circle) - game by @Volhout 
+ * [Snake](https://github.com/thwill1000/mmbasic-third-party/tree/main/snake) - by @Volhout
 
 ## FAQ
 
@@ -90,7 +90,14 @@ The PicoMite firmware is totally free to download and use.
 
 More information can be found on the official PicoMite website at https://geoffg.net/picomite.html
 
-**2. How do I contact the creator of the GameMite ?**
+**2. What happened to the custom Game★Mite firmware ?**
+
+This was only required for Game★Mite 1.0.0 & 1.1.0:
+ - The customisations were only very minor.
+ - Peter Mather has since incorporated them into the standard PicoMite 5.08 firmware.
+ - For historical reference the source of the now-outdated custom firmware is [here](https://github.com/thwill1000/picomite-firmware/tree/gamemite).
+
+**3. How do I contact the creator of the Game★Mite ?**
 
 I can be contacted via:
  - https://github.com as user "thwill1000"
@@ -98,7 +105,7 @@ I can be contacted via:
 
 ##
 
-The GameMite design, gerbers, firmware and MMBasic program suite are distributed for free but if you enjoy it then
+The Game★Mite design, gerbers, firmware and MMBasic program suite are distributed for free but if you enjoy it then
 perhaps you would like to buy me a coffee?
 
 <a href="https://www.buymeacoffee.com/thwill"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="width:217px;"></a>
