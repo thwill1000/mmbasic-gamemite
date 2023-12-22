@@ -2,7 +2,7 @@
 ' License MIT <https://opensource.org/licenses/MIT>
 ' For MMBasic 5.07
 
-' Utility to copy GameMite software to "A:/"
+' Utility to copy Game*Mite software to "A:/"
 
 Option Base 0
 Option Default None
@@ -21,7 +21,7 @@ Sub main()
   Const dst_dir$ = "A:/GameMite"
 
   ?
-  ? "Installing GameMite " sys.format_version$(version%) " to A:/"
+  ? "Installing Game*Mite " sys.format_version$(version%) " to A:/"
   ?
 
   If Not Mm.Info(Exists Dir dst_dir$) Then
@@ -42,32 +42,16 @@ Sub main()
   Loop
 
   ?
-  ? "To configure autorun of GameMite type:"
+  ? "To configure autorun of Game*Mite type:"
   ?
   ? "  FLASH ERASE 1 ' fails harmlessly if flash slot 1 is empty"
   ? "  LOAD " + Chr$(34) + dst_dir$ + "/startup.bas" + Chr$(34)
   ? "  FLASH SAVE 1"
-  ? "  OPTION AUTORUN 1"
+  ? "  OPTION AUTORUN 1,NORESET"
+  ? "  OPTION PLATFORM " + Chr$(34) + "Game*Mite" + Chr$(34)
   ?
 End Sub
 
 Function get_version%()
-  Open Mm.Info(Path) + "startup.bas" For Input As #1
-  Local i%, s$
-  Do While Not Eof(#1)
-    Line Input #1, s$
-    i% = InStr(s$, " VERSION")
-    If i% Then
-      Do While i% <= Len(s$)
-        Select Case Mid$(s$, i%, 1)
-          Case "0" To "9": Exit Do
-        End Select
-        Inc i%
-      Loop
-      If i% > Len(s$) Then Exit Do
-      get_version% = Val(Mid$(s$, i%))
-      Exit Function
-    EndIf
-  Loop
-  Error "VERSION not found"
+  get_version% = Val(sys.get_config$("version", "1", Mm.Info(Path) + ".startup"))
 End Function
