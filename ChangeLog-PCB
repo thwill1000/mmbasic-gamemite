@@ -1,0 +1,20 @@
+ChangeLog for Game*Mite PCB
+---------------------------
+
+Version 1.3.2 - 20-Oct-2023
+  - Same as the first/working v1.3.1 but with tented vias.
+  - There are two versions of the Gerbers for this PCB:
+    - gamemite-gerbers-1-3-2.zip
+    - gamemite-gerbers-jlcpcb-1-3-2.zip
+      - this has additional silkscreen text JLCJLCJLC so that JLCPCB will put
+        the batch number in the specified place (check box when ordering).
+
+Version 1.3.1 (with tented vias) - 16-Sep-2023
+  - Broken Gerber with unwanted GND connections.
+
+Version 1.3.1 (with untented vias) - 23-Aug-2023
+  - Initial "Game*Mite" release.
+  - Updated silk-screen.
+
+Version 1.3.0
+  - Final "Bintendo Tomboy" prototype.
