@@ -1,7 +1,7 @@
-version = 102201
-copyright = "(c) 2023 Thomas Hugo Williams"
+version = 102202
+copyright = "(c) 2023-2024 Thomas Hugo Williams"
 firmware = 5080000
 menu = "menu.bas"
-mmbasic_copyright_1 = "Copyright 2011-2023 Geoff Graham"
-mmbasic_copyright_2 = "Copyright 2016-2023 Peter Mather"
+mmbasic_copyright_1 = "Copyright 2011-2024 Geoff Graham"
+mmbasic_copyright_2 = "Copyright 2016-2024 Peter Mather"
 splash = "splash.bmp"

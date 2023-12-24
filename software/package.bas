@@ -1,6 +1,6 @@
 #!/usr/local/bin/mmbasic
 
-' Copyright (c) 2023 Thomas Hugo Williams
+' Copyright (c) 2023-2024 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
 ' For MMB4L 0.6.0
 
@@ -22,7 +22,7 @@ Const BUILD_DIR$ = "build/" + NAME$
 Const SOFTWARE_DIR$ = "/mmbasic-gamemite/software/"
 Const FIRMWARE_DIR$ = "../../picomite-firmware"
 Const UF2_FILE$ = NAME_AND_VERSION$ + "-fw-only.uf2"
-Const ZIP_FILE$ = NAME_AND_VERSION$ + "-appendix-d.zip"
+Const ZIP_FILE$ = NAME_AND_VERSION$ + "-alternative.zip"
 
 If Right$(Mm.Info$(Path), Len(SOFTWARE_DIR$)) <> SOFTWARE_DIR$ Then Error "Invalid path"
 
@@ -32,7 +32,7 @@ create_build_dir()
 ' build_firmware() - No longer necessary,  using standard PicoMite firmware.
 build_software()
 create_archive()
-copy_archive()
+' copy_archive()
 
 End
 
@@ -85,7 +85,7 @@ End Sub
 Sub create_archive()
   ? "Creating archive:"
   ? "  " + ZIP_FILE$
-  System "cd build && zip -r " + ZIP_FILE$ + " " + NAME$ + " " + UF2_FILE$
+  System "cd build && zip -r " + ZIP_FILE$ + " " + NAME$ ' + " " + UF2_FILE$
 End Sub
 
 Sub copy_archive()
