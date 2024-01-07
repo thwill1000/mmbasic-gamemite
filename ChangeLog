@@ -1,7 +1,7 @@
 ChangeLog
 ---------
 
-Version 1.2 RC 2 - 24-Dec-2023:
+Version 1.2 RC 2 - 7-Jan-2024:
  - Updated PicoVaders => v1.1.3 fixing issue where the game would slow
    down and become unplayable once most of the aliens were destroyed.
 
