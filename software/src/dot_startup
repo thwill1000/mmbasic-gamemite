@@ -1,4 +1,4 @@
-version = 102202
+version = 102300 # v1.2.0
 copyright = "(c) 2023-2024 Thomas Hugo Williams"
 firmware = 5080000
 menu = "menu.bas"
