@@ -80,6 +80,7 @@ Special thanks to @Martin H, @Mozzie, @Volhout and our other friends from https:
 ## Other programs to download and try
 
  * [Blocks](https://github.com/thwill1000/mmbasic-third-party/tree/main/pico-blocks) - Tetris clone by Geoff Graham
+ * [Flappy Bird](https://github.com/thwill1000/mmbasic-third-party/tree/main/flappy) - Flappy Bird clone by @Volhout
  * [PicoMan](https://github.com/thwill1000/mmbasic-third-party/tree/main/pico-man) - Pac-Man clone by Geoff Graham
  * [Snake](https://github.com/thwill1000/mmbasic-third-party/tree/main/snake) - obligatory "Snake" game by @Volhout
 
