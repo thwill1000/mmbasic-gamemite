@@ -22,11 +22,10 @@ The Game★Mite is a “build it yourself” handheld game console based on the 
 
 ## YouTube video
 
-This video shows the Mark-I prototype.
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" width="10%" alt="YouTube logo">
 
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.youtube.com/watch?v=jB5hF2ZWHrA"><img src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" width="10%" title="https://www.youtube.com/watch?v=jB5hF2ZWHrA"></a>
-
-*Video of the release version coming soon-ish*.
+ - [Video of the release version](https://www.youtube.com/watch?v=8bx2vpwuXoo)
+ - [Video of the Mark-I prototype](https://www.youtube.com/watch?v=jB5hF2ZWHrA)
 
 ## Copyright and Acknowledgements
 
