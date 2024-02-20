@@ -1,8 +1,8 @@
 ChangeLog
 ---------
 
-Version 1.2.0 - 19-Jan-2024:
- - Release version for use with the 5.08.00 PicoMite firmware.
+Version 1.2.0 - 20-Feb-2024:
+ - Updated to use PicoMite firmware v5.08.00.
  - Updated "Circle One" => v1.1.1 fixing bug where if a button was being held
    down when one of the players won then the game would pause until the button
    was released before announcing the winner.
@@ -12,7 +12,7 @@ Version 1.2 RC 2 - 7-Jan-2024:
    down and become unplayable once most of the aliens were destroyed.
 
 Version 1.2 RC 1 - 21-Dec-2023:
- - Updated to use standard PicoMite firmware (5.08.00b5).
+ - Updated to use standard PicoMite firmware v5.08.00b5.
    Required options are:
      OPTION PLATFORM "Game*Mite"
      OPTION SYSTEM SPI GP6,GP3,GP4
