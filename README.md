@@ -110,8 +110,16 @@ I can be contacted via:
  - https://github.com as user "thwill1000"
  - https://www.thebackshed.com/forum/Microcontrollers as user "thwill"
 
+**4. Can I buy a Game★Mite ?**
+
+The Game★Mite design, Gerbers, PicoMite firmware and Game★Mite software are distributed for free from this GitHub repository.
+
+However if you'd like to buy a partial kit (does not include the Raspberry Pi Pico, ILI9341 display and battery) for ~£20 (March 2024) plus postage from me or Mick Gulovsen then please contact us via [The Back Shed forum](https://www.thebackshed.com/forum/Microcontrollers) or email [sockpuppetstudios@outlook.com](mailto:sockpuppetstudios@outlook.com).
+
+<img src="images/gamemite-kit.jpg" width="640" alt="Partial kit">
+
 ##
 
-The Game★Mite design, gerbers, PicoMite firmware and Game★Mite software are distributed for free but if you enjoy it then perhaps you would like to buy me a coffee?
+If you like this project then perhaps you would like to buy me a coffee?
 
 <a href="https://www.buymeacoffee.com/thwill"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="width:217px;"></a>
