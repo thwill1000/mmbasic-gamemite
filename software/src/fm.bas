@@ -1,6 +1,6 @@
-' Copyright (c) 2023 Thomas Hugo Williams
+' Copyright (c) 2023-2025 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
-' For MMBasic 5.08
+' For MMBasic 6.0
 
 ' Limited "File Manager" for the Game*Mite.
 
@@ -8,34 +8,38 @@ Option Base 0
 Option Default None
 Option Explicit On
 
-'!define NO_INCLUDE_GUARDS
-
-#Include "splib/system.inc"
+Const VERSION = 101300 ' 1.1.0
 
 '!if defined(PICOMITEVGA)
+  '!replace { Option Simulate "Colour Maximite 2" } { Option Simulate "PicoMiteVGA" }
+  '!dynamic_call nes_a
+  '!dynamic_call snes_a
   '!replace { Page Copy 1 To 0 , B } { FrameBuffer Copy F , N , B }
   '!replace { Page Write 1 } { FrameBuffer Write F }
   '!replace { Page Write 0 } { FrameBuffer Write N }
   '!replace { Mode 7 } { Mode 2 : FrameBuffer Create }
-'!elif defined(PICOMITE) || defined(GAMEMITE)
+'!elif defined(GAMEMITE)
+  '!replace { Option Simulate "Colour Maximite 2" } { Option Simulate "Game*Mite" }
+  '!dynamic_call ctrl.gamemite
   '!replace { Page Copy 1 To 0 , B } { FrameBuffer Copy F , N }
   '!replace { Page Write 1 } { FrameBuffer Write F }
   '!replace { Page Write 0 } { FrameBuffer Write N }
   '!replace { Mode 7 } { FrameBuffer Create }
 '!endif
 
+If Mm.Device$ = "MMB4L" Then
+  Option Simulate "Colour Maximite 2"
+  Option CodePage CMM2
+EndIf
+
+#Include "splib/system.inc"
 #Include "splib/ctrl.inc"
 #Include "splib/sound.inc"
 #Include "splib/string.inc"
 #Include "splib/file.inc"
 #Include "splib/txtwm.inc"
 #Include "splib/menu.inc"
-#Include "splib/gamemite.inc"
-
-'!if !defined(GAMEMITE)
-If sys.is_platform%("mmb4l") Then Option CodePage CMM2
-If sys.is_platform%("mmb4w", "cmm2*") Then Option Console Serial
-'!endif
+#Include "splib/game.inc"
 
 Const MAX_FILES = 500
 Const FILES_PER_PAGE = 12
@@ -43,16 +47,39 @@ Const FILES_PER_PAGE = 12
 If sys.PLATFORM$() = "Game*Mite" Then
   Const num_drives% = 2
   Dim drives$(num_drives% - 1) = ("A:/", "B:/")
-Else
+ElseIf InStr(Mm.Device$, "Colour Maximite 2") Then
+  Option Console Serial
   Const num_drives% = 1
   Dim drives$(1) = ("/", "/")
+ElseIf Mm.Device$ = "MMBasic for Windows" Then
+  Option Console Serial
+  Const num_drives% = 1
+  Dim drives$(1) = ("/", "/")
+ElseIf InStr(Mm.Device$, "PicoMiteVGA") Then
+  Const num_drives% = 2
+  Dim drives$(num_drives% - 1) = ("A:/", "B:/")
+ElseIf Mm.Device$ = "MMB4L" Then
+  ' Do nothing, handled below.
+Else
+  Error "Unsupported device: " + Mm.Device$
 EndIf
+
+If Mm.Info(Device X) = "MMB4L" Then
+  On Error Ignore
+  Erase num_drives%
+  Erase drives$()
+  On Error Abort
+  Const num_drives% = 1
+  Dim drives$(1) = (sys.HOME$(), "")
+EndIf
+
 Dim drive_idx% = 0
 Dim file_list$(MAX_FILES + 1) Length 64 ' MAX_FILES + 2 elements
 Dim menu.items$(15) Length 127
 Dim num_files%
 Dim cur_page%
 Dim num_pages%
+Dim ctrl$ = ctrl.default_driver$()
 
 Mode 7
 Page Write 1
@@ -61,12 +88,11 @@ main()
 Error "Invalid state"
 
 Sub main()
-  '!dynamic_call ctrl.gamemite
-  '!dynamic_call keys_cursor_ext
-  Const ctrl$ = Choice(sys.PLATFORM$() = "Game*Mite", "ctrl.gamemite", "keys_cursor_ext")
+  '!dynamic_call game.on_break
+  sys.override_break("game.on_break")
+  game.init_window("File Browser", VERSION)
   ctrl.init_keys()
-  sys.override_break()
-  Call ctrl$, ctrl.OPEN
+  If ctrl.open_no_error%(ctrl$) <> sys.SUCCESS Then ctrl$ = "ctrl.no_controller"
   sound.init()
   menu.init(ctrl$, "menu_cb")
   update_files()
@@ -136,10 +162,10 @@ Sub update_menu_data()
   ' Fill remaining entries with blanks.
   For i% = i% To Bound(menu.items$(), 1) - 1 : menu.items$(i%) = "|" : Next
 
-  If sys.PLATFORM$() = "Game*Mite" Then
-    menu.items$(i%) = str.decode$("Use \x95 \x94 \x92 \x93 and SELECT|")
-  Else
+  If ctrl$ = "ctrl.no_controller" Then
     menu.items$(i%) = str.decode$("Use \x95 \x94 \x92 \x93 and SPACE to select|")
+  Else
+    menu.items$(i%) = str.decode$("Use \x95 \x94 \x92 \x93 and SELECT|")
   EndIf
 
   menu.item_count% = i% + 1
@@ -186,8 +212,8 @@ Sub cmd_drive(key%)
         Case >= num_drives% : drive_idx% = 0
       End Select
 
-    Case ctrl.START
-      on_start()
+    Case ctrl.HOME, ctrl.START
+      on_quit()
       Exit Sub
   End Select
 
@@ -223,7 +249,7 @@ Sub cmd_open(key%)
           Case ".bas"
             menu.play_valid_fx(1)
             open_bas(file_idx%)
-          Case ".flac", ".mod", ".wav"
+          Case ".flac", ".mod", ".mp3", ".wav"
             menu.play_valid_fx(1)
             play_music(file_idx%)
           Case Else
@@ -256,8 +282,8 @@ Sub cmd_open(key%)
         menu.render()
       EndIf
 
-    Case ctrl.START
-      on_start()
+    Case ctrl.HOME, ctrl.START
+      on_quit()
 
     Case Else
       menu.play_invalid_fx(1)
@@ -269,8 +295,9 @@ Sub open_bas(file_idx%)
   If Right$(f$, 1) <> "/" Then Cat f$, "/"
   Cat f$, file_list$(file_idx%)
   menu.term("Loading " + file.get_name$(f$) + " ...")
+  If Mm.Info$(Device X) = "MMB4L" Then Pause 2000
   If Mm.Info(Exists File f$) Then
-    Run f$
+    Run f$, Choice(InStr(Mm.CmdLine$, "--shell"), "--shell", "")
   Else
     menu.term(file.get_name$(f$) + " not found")
     End
@@ -299,6 +326,8 @@ Sub play_music(file_idx%)
     Case ".mod"
       ' TODO: Currently no mechanism to determine end of .mod file.
       Play Modfile f$
+    Case ".mp3"
+      Play Mp3 f$, play_stop_cb
     Case ".wav"
       Play Wav f$, play_stop_cb
     Case Else
@@ -307,9 +336,8 @@ Sub play_music(file_idx%)
 
   ctrl.wait_until_idle(menu.ctrl$)
   Do While key% = 0
-    If sys.break_flag% Then menu.on_break()
     Call menu.ctrl$, key%
-    If Not key% Then keys_cursor(key%)
+    If Not key% Then keys_cursor_ext(key%)
   Loop
 
   play_stop_cb()
@@ -336,12 +364,12 @@ Sub play_stop_cb()
   sound.init()
 End Sub
 
-Sub on_start()
+Sub on_quit()
   menu.play_valid_fx(1)
   Const msg$ = str.decode$("\nAre you sure you want to quit this program?")
   Select Case YES_NO_BTNS$(menu.msgbox%(msg$, YES_NO_BTNS$(), 1))
     Case "Yes"
-      gamemite.end()
+      game.end()
     Case "No"
       twm.switch(menu.win1%)
       twm.redraw()

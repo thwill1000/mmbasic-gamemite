@@ -8,8 +8,6 @@ Option Base 0
 Option Default None
 Option Explicit 1
 
-'!define NO_INCLUDE_GUARDS
-
 #Include "splib/system.inc"
 
 main()

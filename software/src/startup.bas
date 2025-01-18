@@ -1,19 +1,17 @@
-' Copyright (c) 2023 Thomas Hugo Williams
+' Copyright (c) 2023-2024 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
-' For MMBasic 5.07
+' For MMBasic 6.0
 
-' Startup banner for the GameMite.
+' Startup banner for the Game*Mite.
 
 Option Base 0
 Option Default None
 Option Explicit 1
 
-'!define NO_INCLUDE_GUARDS
-
 #Include "splib/system.inc"
-#Include "splib/gamemite.inc"
+#Include "splib/game.inc"
 
-Const CONFIG$ = gamemite.file$(".startup")
+Const CONFIG$ = find_file$(".startup")
 Const VERSION = Val(sys.get_config$("version", "0", CONFIG$))
 Const MIN_FIRMWARE = Val(sys.get_config$("firmware", "9999999", CONFIG$))
 Const FW = Mm.Info(FontWidth), FH = Mm.Info(FontHeight)
@@ -25,7 +23,7 @@ FrameBuffer Write F
 Cls
 
 ' Splash image.
-Load Image gamemite.file$(sys.get_config$("splash", "unknown", CONFIG$)), 32, y%
+Load Image find_file$(sys.get_config$("splash", "unknown", CONFIG$)), 32, y%
 Inc y%, 64 + FH
 
 ' Game*Mite version.
@@ -55,7 +53,7 @@ Text 160, y%, sys.get_config$("mmbasic_copyright_2", "unknown", CONFIG$), CM
 Font 1
 Inc y%, 2 * FH
 
-Const f$ = gamemite.file$(sys.get_config$("menu", "unknown", CONFIG$))
+Const f$ = find_file$(sys.get_config$("menu", "unknown", CONFIG$))
 Const z% = Mm.Info(Exists File f$)
 Dim msg$ = Choice(z%, "Loading menu ...", "Menu program not found!")
 Text 160, y%, msg$, CM
@@ -66,3 +64,14 @@ FrameBuffer Write N
 Pause 500
 If Len(f$) Then Run f$ Else End
 
+Function find_file$(f$)
+  ' Paths are relative to "A:/GameMite" or "B:/GameMite".
+  find_file$ = "A:/GameMite" + Choice(f$ = "", "", "/" + f$), x%
+  x% = Mm.Info(Exists File find_file$)
+  If Not x% Then
+    find_file$ = "B" + Mid$(find_file$, 2)
+    On Error Skip ' Handle SD Card not present error.
+    x% = Mm.Info(Exists File find_file$)
+  EndIf
+  If Not x% Then find_file$ = "A" + Mid$(find_file$, 2)
+End Function
