@@ -1,6 +1,5 @@
 ' Copyright (c) 2020-2024 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
-' For MMBasic 5.07
 
 '!info defined CMM2
 '!info defined GAMEMITE
@@ -53,7 +52,12 @@
   '!endif
 '!endif
 
-Const sys.VERSION = 102300 ' 1.2.0
+On Error Skip
+xyz_not_declared% = 1
+If Not Mm.ErrNo Then Error "OPTION EXPLICIT is required by splib"
+On Error Clear
+
+Const sys.VERSION = 103300 ' 1.3.0
 Const sys.NO_DATA$ = Chr$(&h7F)
 Const sys.CRLF$ = Chr$(13) + Chr$(10)
 '!if defined(GAMEMITE)
@@ -61,7 +65,7 @@ Const sys.CRLF$ = Chr$(13) + Chr$(10)
   ' Const sys.FIRMWARE = Int(1000000 * Mm.Info(Version))
   '!endif
 '!else
-If Mm.Info$(Device) = "MMB4L" Then
+If Mm.Info$(Device X) = "MMB4L" Then
   Const sys.FIRMWARE = Mm.Info(Version)
 Else
   Const sys.FIRMWARE = Int(1000000 * Mm.Info(Version))
@@ -179,7 +183,7 @@ End Function
 ' Formats a firmware integer version as a string.
 Function sys.format_firmware_version$(v%)
   Const v_% = Choice(v%, v%, sys.FIRMWARE)
-  If Mm.Device$ = "MMB4L" Then
+  If Mm.Info(Device X) = "MMB4L" Then
     sys.format_firmware_version$ = sys.format_version$(v_% \ 10000)
     If v_% Mod 10000 Then Cat sys.format_firmware_version$, " build " + Str$(v_% Mod 10000)
   Else
@@ -219,11 +223,11 @@ Sub sys.restore_break()
   Option Break 3
 End Sub
 
-'!if defined(GAMEMITE)
+'!if defined(REAL_GAMEMITE)
   '!replace { sys.HOME$ ( ) } { "A:" }
 '!else
 Function sys.HOME$()
-  Select Case Mm.Device$
+  Select Case Mm.Info$(Device X)
     Case "MMB4L"
       sys.HOME$ = Mm.Info$(EnvVar "HOME")
     Case "MMBasic for Windows"
@@ -258,11 +262,11 @@ Function sys.SEPARATOR$()
 End Function
 '!endif
 
-'!if defined(GAMEMITE)
+'!if defined(REAL_GAMEMITE)
   '!replace { sys.TMPDIR$ ( ) } { "A:/tmp" }
 '!else
 Function sys.TMPDIR$()
-  Select Case Mm.Device$
+  Select Case Mm.Info$(Device X)
     Case "MMB4L"
       sys.TMPDIR$ = Choice(Mm.Info$(EnvVar "TMPDIR") = "", "/tmp", Mm.Info$(EnvVar "TMPDIR"))
     Case "MMBasic for Windows"
@@ -321,3 +325,41 @@ Function sys.error%(code%, msg$)
   sys.error% = code%
   sys.err$ = msg$
 End Function
+
+' Reads the '.mmbasic-shell' file.
+'
+' @param  exist%  If 1 then ERROR if file does not exist, otherwise return empty string.
+' @param  fnbr%   File number to use for accessing the file, if unspecified/0 then uses #9.
+' @return         The contents of the first line of the file.
+Function sys.read_shell_file$(exist%, fnbr%)
+  Const f$ = sys.HOME$() + "/.mmbasic-shell"
+  If Not exist% And Not Mm.Info(Exists f$) Then Exit Function
+  Const _fnbr% = Choice(fnbr%, fnbr%, 9)
+  Open f$ For Input As _fnbr%
+  Line Input #_fnbr%, sys.read_shell_file$
+  Close _fnbr%
+End Function
+
+' Writes the '.mmbasic-shell' file for later reading by sys.run_shell().
+'
+' @param  s$     Contents to write to the file, if empty then writes path of current program.
+' @param  fnbr%  File number to use for accessing the file, if unspecified/0 then uses #9.
+Sub sys.write_shell_file(s$, fnbr%)
+  Const f$ = sys.HOME$() + "/.mmbasic-shell"
+  Const _s$ = Choice(s$ = "", Mm.Info(Current), s$)
+  Const _fnbr% = Choice(fnbr%, fnbr%, 9)
+  If sys.read_shell_file$(0, _fnbr%) <> _s$ Then
+    ' Only write if content has changed.
+    Open f$ For Output As _fnbr%
+    Print #_fnbr%, _s$
+    Close _fnbr%
+  EndIf
+End Sub
+
+' Runs the program specified by the '.mmbasic-shell' file.
+'
+' @param  fnbr%  File number to use for accessing the file, if unspecified/0 then uses #9.
+Sub sys.run_shell(fnbr%)
+  Const prog$ = sys.read_shell_file$(1, fnbr%)
+  If prog$ <> "" Then Run prog$
+End Sub

@@ -1,4 +1,4 @@
-' Copyright (c) 2022-2023 Thomas Hugo Williams
+' Copyright (c) 2022-2024 Thomas Hugo Williams
 ' License MIT <https://opensource.org/licenses/MIT>
 
 ' MMBasic Controller Library
@@ -41,7 +41,7 @@ Const ctrl.UI_DELAY = 200 ' 200 micro-seconds.
 ' Comma separated list of OPEN controller drivers that should automatically
 ' be CLOSEd when ctrl.term() is called. If a driver does not need closing
 ' (i.e. keyboard) then it does not need to be added to this list.
-Dim ctrl.open_drivers$
+Dim ctrl.driver_list$
 
 ' Mechanism to use for reading the keyboard.
 '   0 = INKEY$
@@ -61,13 +61,40 @@ Dim ctrl.key_map%(31 + Mm.Info(Option Base))
 ' The scan code first has to be converted into a single byte value,
 ' see ctrl.on_ps2().
 '!if !defined(GAMEMITE)
-If sys.is_platform%("pmvga*") Then Dim ctrl.scan_map%(31)
+If InStr(Mm.Device$, "PicoMiteVGA") Then Dim ctrl.scan_map%(31)
 '!endif
 
 ' Timer number configured for reading the KEYDOWN state on the CMM2.
 '!if !defined(GAMEMITE)
-If sys.is_platform%("cmm2*", "mmb4w") Then Dim ctrl.tick_nbr%
+If InStr(Mm.Device$, "Colour Maximite 2") Then Dim ctrl.tick_nbr%
+If Mm.Device$ = "MMBasic for Windows"  Then Dim ctrl.tick_nbr%
 '!endif
+
+' Gets a default controller driver based on the current platform.
+Function ctrl.default_driver$()
+  If sys.PLATFORM$() = "Game*Mite" Then
+    ctrl.default_driver$ = "ctrl.gamemite"
+  ElseIf InStr(Mm.Device$, "PicoMiteVGA") Then
+    ctrl.default_driver$ = "nes_a"
+  ElseIf InStr(Mm.Device$, "Colour Maximite 2") Then
+    ctrl.default_driver$ = "wii_classic_3"
+  ElseIf Mm.Device$ = "MMB4L" Then
+    ctrl.default_driver$ = "mmb4l_gamepad_1"
+  Else
+    ctrl.default_driver$ = "keys_cursor_ext"
+  EndIf
+End Function
+
+' Opens a controller driver without throwing an ERROR on failure.
+'
+' @param  ctrl$  The controller driver.
+' @return        0 on success, otherwise failure.
+Function ctrl.open_no_error%(ctrl$)
+  On Error Ignore
+  Call ctrl$, ctrl.OPEN
+  If Mm.ErrNo Then ctrl.open_no_error% = sys.FAILURE
+  On Error Abort
+End Function
 
 ' Initialises keyboard reading.
 '
@@ -138,8 +165,8 @@ End Sub
 Sub ctrl.term()
   ctrl.term_keys()
   On Error Ignore
-  Do While Len(ctrl.open_drivers$)
-    Call Field$(ctrl.open_drivers$, 1), ctrl.CLOSE
+  Do While Len(ctrl.driver_list$)
+    Call Field$(ctrl.driver_list$, 1), ctrl.CLOSE
   Loop
   On Error Abort
 End Sub
@@ -256,13 +283,9 @@ Sub ctrl.wait_until_idle(d1$, d2$, d3$, d4$, d5$)
 End Sub
 
 ' Reads the keyboard as if it were a controller.
-'
-' Note that the PicoMite has no KEYDOWN function so we are limited to
-' reading a single keypress from the input buffer and cannot handle multiple
-' simultaneous keys or properly handle a key being pressed and not released.
 Sub keys_cursor(x%)
   If x% < 0 Then Exit Sub
-  x% =    ctrl.keydown%(32)  * ctrl.A
+  x% =    ctrl.keydown%(32)  * ctrl.A ' Space
   Inc x%, ctrl.keydown%(128) * ctrl.UP
   Inc x%, ctrl.keydown%(129) * ctrl.DOWN
   Inc x%, ctrl.keydown%(130) * ctrl.LEFT
@@ -271,30 +294,38 @@ End Sub
 
 Sub keys_cursor_ext(x%)
   If x% < 0 Then Exit Sub
-  x% =    ctrl.keydown%(32)  * ctrl.A ' Space
-  Inc x%, ctrl.keydown%(98)  * ctrl.B ' B
-  Inc x%, (ctrl.keydown%(101) Or ctrl.keydown%(113)) * ctrl.SELECT ' E or Q
+  x% = (ctrl.keydown%(32) Or ctrl.keydown%(120)) * ctrl.A ' Space or X
+  Inc x%, ctrl.keydown%(122) * ctrl.B ' Z
+  Inc x%, (ctrl.keydown%(&hA) Or ctrl.keydown%(97))  * ctrl.SELECT ' Enter or A
   Inc x%, ctrl.keydown%(115) * ctrl.START ' S
   Inc x%, ctrl.keydown%(128) * ctrl.UP
   Inc x%, ctrl.keydown%(129) * ctrl.DOWN
   Inc x%, ctrl.keydown%(130) * ctrl.LEFT
   Inc x%, ctrl.keydown%(131) * ctrl.RIGHT
+  Inc x%, ctrl.keydown%(27)  * ctrl.HOME ' Escape
 End Sub
 
-Sub ctrl.open_driver(d$)
-  Cat ctrl.open_drivers$, d$ + ","
+Sub ctrl.add_driver(d$)
+  If Mm.ErrNo Then Exit Sub ' Do not record driver opening if failed.
+  Cat ctrl.driver_list$, d$ + ","
 End Sub
 
-Sub ctrl.close_driver(d$)
-  Local idx% = InStr(ctrl.open_drivers$, d$)
+Sub ctrl.remove_driver(d$)
+  Local idx% = InStr(ctrl.driver_list$, d$)
   Select Case idx%
     Case 0
       ' d$ not present, ignore.
     Case 1
-      ctrl.open_drivers$ = Mid$(ctrl.open_drivers$, Len(d$) + 2)
+      ctrl.driver_list$ = Mid$(ctrl.driver_list$, Len(d$) + 2)
     Case Else
-      ctrl.open_drivers$ = Mid$(ctrl.open_drivers$, 1, idx% - 1) + Mid$(ctrl.open_drivers$, idx% + Len(d$) + 1)
+      ctrl.driver_list$ = Mid$(ctrl.driver_list$, 1, idx% - 1) + Mid$(ctrl.driver_list$, idx% + Len(d$) + 1)
   End Select
+End Sub
+
+' Driver subroutine for "No controller".
+'!dynamic_call ctrl.no_controller
+Sub ctrl.no_controller(x%)
+  x% = 0
 End Sub
 
 ' Atari joystick on PicoGAME Port A.
@@ -309,10 +340,10 @@ Sub atari_a(x%)
       Exit Sub
     Case ctrl.OPEN
       SetPin GP0, DIn : SetPin GP1, DIn : SetPin GP2, DIn : SetPin GP3, DIn : SetPin GP14, DIn
-      ctrl.open_driver("atari_a")
+      ctrl.add_driver("atari_a")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       SetPin GP0, Off : SetPin GP1, Off : SetPin GP2, Off : SetPin GP3, Off : SetPin GP14, Off
-      ctrl.close_driver("atari_a")
+      ctrl.remove_driver("atari_a")
   End Select
 End Sub
 
@@ -328,10 +359,10 @@ Sub atari_b(x%)
       Exit Sub
     Case ctrl.OPEN
       SetPin GP4, DIn : SetPin GP5, DIn : SetPin GP15, DIn : SetPin GP22, DIn : SetPin GP28, DIn
-      ctrl.open_driver("atari_b")
+      ctrl.add_driver("atari_b")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       SetPin GP4, Off : SetPin GP5, Off : SetPin GP15, Off : SetPin GP22, Off : SetPin GP28, Off
-      ctrl.close_driver("atari_b")
+      ctrl.remove_driver("atari_b")
     End Select
 End Sub
 
@@ -359,10 +390,10 @@ Sub snes_a(x%)
       SetPin GP1, Din : SetPin GP2, Dout : SetPin GP3, Dout
       Pin(GP2) = 0 : Pin(GP3) = 0
       snes_a(0) ' Discard the first reading.
-      ctrl.open_driver("snes_a")
+      ctrl.add_driver("snes_a")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       SetPin GP1, Off : SetPin GP2, Off : SetPin GP3, Off
-      ctrl.close_driver("snes_a")
+      ctrl.remove_driver("snes_a")
   End Select
 End Sub
 
@@ -390,10 +421,10 @@ Sub snes_b(x%)
       SetPin GP4, Din : SetPin GP5, Dout : SetPin GP22, Dout
       Pin(GP5) = 0 : Pin(GP22) = 0
       snes_b(0) ' Discard the first reading.
-      ctrl.open_driver("snes_b")
+      ctrl.add_driver("snes_b")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       SetPin GP4, Off : SetPin GP5, Off : SetPin GP22, Off
-      ctrl.close_driver("snes_b")
+      ctrl.remove_driver("snes_b")
   End Select
 End Sub
 
@@ -404,6 +435,7 @@ End Sub
 '
 '   GP2: Latch, GP3: Clock, GP1: Data
 Sub nes_a(x%)
+  If Mm.Info(Device X) = "MMB4L" Then snes_a(x%) : Exit Sub
   Select Case x%
     Case >= 0
       Pulse GP2, ctrl.PULSE
@@ -420,10 +452,10 @@ Sub nes_a(x%)
       SetPin GP1, Din : SetPin GP2, Dout : SetPin GP3, Dout
       Pin(GP2) = 0 : Pin(GP3) = 0
       nes_a(0) ' Discard the first reading.
-      ctrl.open_driver("nes_a")
+      ctrl.add_driver("nes_a")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       SetPin GP1, Off : SetPin GP2, Off : SetPin GP3, Off
-      ctrl.close_driver("nes_a")
+      ctrl.remove_driver("nes_a")
   End Select
 End Sub
 
@@ -431,6 +463,7 @@ End Sub
 '
 '   GP5: Latch, GP22: Clock, GP4: Data
 Sub nes_b(x%)
+  If Mm.Info(Device X) = "MMB4L" Then snes_b(x%) : Exit Sub
   Select Case x%
     Case >= 0
       Pulse GP5, ctrl.PULSE
@@ -447,10 +480,10 @@ Sub nes_b(x%)
       SetPin GP4, Din : SetPin GP5, Dout : SetPin GP22, Dout
       Pin(GP5) = 0 : Pin(GP22) = 0
       nes_b(0) ' Discard the first reading.
-      ctrl.open_driver("nes_b")
+      ctrl.add_driver("nes_b")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       SetPin GP4, Off : SetPin GP5, Off : SetPin GP22, Off
-      ctrl.close_driver("nes_b")
+      ctrl.remove_driver("nes_b")
   End Select
 End Sub
 
@@ -466,11 +499,11 @@ Sub ctrl.gamemite(x%)
     Case ctrl.OPEN
       Local i%
       For i% = 8 To 15 : SetPin Mm.Info(PinNo "GP" + Str$(i%)), Din, PullUp : Next
-      ctrl.open_driver("ctrl.gamemite")
+      ctrl.add_driver("ctrl.gamemite")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       Local i%
       For i% = 8 To 15 : SetPin Mm.Info(PinNo "GP" + Str$(i%)), Off : Next
-      ctrl.close_driver("ctrl.gamemite")
+      ctrl.remove_driver("ctrl.gamemite")
   End Select
 End Sub
 
@@ -488,11 +521,11 @@ Sub atari_dx(x%)
     Case ctrl.OPEN
       SetPin 32, Din, PullUp : SetPin 33, Din, PullUp : SetPin 35, Din, PullUp
       SetPin 36, Din, PullUp : SetPin 38, Din, PullUp : SetPin 40, Din, PullUp
-      ctrl.open_driver("atari_dx")
+      ctrl.add_driver("atari_dx")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       SetPin 32, Off : SetPin 33, Off : SetPin 35, Off
       SetPin 36, Off : SetPin 38, Off : SetPin 40, Off
-      ctrl.close_driver("atari_dx")
+      ctrl.remove_driver("atari_dx")
   End Select
 End Sub
 
@@ -519,10 +552,10 @@ Sub nes_dx(x%)
       SetPin 36, Din, PullUp : SetPin 38, Dout : SetPin 40, Dout
       Pin(38) = 0 : Pin(40) = 0
       nes_dx(0) ' Discard the first reading.
-      ctrl.open_driver("nes_dx")
+      ctrl.add_driver("nes_dx")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       SetPin 36, Off : SetPin 38, Off : SetPin 40, Off
-      ctrl.close_driver("nes_dx")
+      ctrl.remove_driver("nes_dx")
   End Select
 End Sub
 
@@ -553,10 +586,10 @@ Sub snes_dx(x%)
       SetPin 36, Din, PullUp : SetPin 38, Dout : SetPin 40, Dout
       Pin(38) = 0 : Pin(40) = 0
       snes_dx(0) ' Discard the first reading.
-      ctrl.open_driver("snes_dx")
+      ctrl.add_driver("snes_dx")
     Case ctrl.CLOSE, ctrl.SOFT_CLOSE
       SetPin 36, Off : SetPin 38, Off : SetPin 40, Off
-      ctrl.close_driver("snes_dx")
+      ctrl.remove_driver("snes_dx")
   End Select
 End Sub
 
@@ -597,7 +630,7 @@ Sub wii_internal(i2c%, x%, type%)
           Controller Classic Close i2c%
       End Select
       is_open%(i2c%) = 0
-      ctrl.close_driver("wii_any_" + Str$(i2c%))
+      ctrl.remove_driver("wii_any_" + Str$(i2c%))
       Exit Sub
 
     Case ctrl.OPEN
@@ -618,7 +651,7 @@ Sub wii_internal(i2c%, x%, type%)
           If Not(type% And &h01) Then
             Controller Nunchuk Close i2c%
             is_open%(i2c%) = -1
-            Error "Nunchuck controller on I2C" + Str$(i2c%) + " not supported"
+            Error "Nunchuk controller on I2C" + Str$(i2c%) + " not supported"
           EndIf
         Case &hA4200101
           Controller Nunchuk Close i2c%
@@ -633,7 +666,7 @@ Sub wii_internal(i2c%, x%, type%)
           is_open%(i2c%) = -1
           Error "Unrecognised controller on I2C" + Str$(i2c%)
       End Select
-      ctrl.open_driver("wii_any_" + Str$(i2c%))
+      ctrl.add_driver("wii_any_" + Str$(i2c%))
   End Select
 End Sub
 
@@ -682,6 +715,123 @@ Sub wii_nunchuk_3(x%)
   wii_internal(3, x%, &h01)
 End Sub
 
+Sub wii_classic_pm(x%)
+  Select Case x%
+    Case >= 0
+      x% = Device(Wii b)
+      Exit Sub
+
+    Case ctrl.SOFT_CLOSE
+      ' Do nothing
+
+    Case ctrl.CLOSE
+      Device Wii Close
+      ctrl.remove_driver("wii_classic_pm")
+
+    Case ctrl.OPEN
+      Device Wii Open
+      ctrl.add_driver("wii_classic_pm")
+  End Select
+End Sub
+
+Sub wii_nunchuk_pm(x%)
+  Select Case x%
+    Case >= 0
+      Const xa%, ya%, za%, c%, z%
+      read_val(xa%, ya%, za%, c%, z%)
+      x% =    z% * ctrl.A
+      Inc x%, c% * ctrl.B
+      Inc x%, ya% > 200 * ctrl.UP
+      Inc x%, ya% < 60  * ctrl.DOWN
+      Inc x%, xa% < 60  * ctrl.LEFT
+      Inc x%, xa% > 200 * ctrl.RIGHT
+      Exit Sub
+
+    Case ctrl.SOFT_CLOSE
+      ' Do nothing
+
+    Case ctrl.CLOSE
+      ' TODO
+      ctrl.remove_driver("wii_classic_pm")
+
+    Case ctrl.OPEN
+      init_no_enc()
+      Const id% = read_id%()
+      If id% <> &hA4200000 Then Error "Not a Nunchuk controller"
+      ctrl.add_driver("wii_nunchuk_pm")
+  End Select
+End Sub
+
+Sub init_no_enc()
+  I2C Write &h52, 0, 2, &h40, &h00
+  Pause 10
+  I2C Write &h52, 0, 2, &hF0, &h55
+  I2C Write &h52, 0, 2, &hFB, &h00
+End Sub
+ 
+Function read_id%()
+  Local x%(5)
+  I2C Write &h52, 0, 1, &hFA
+  I2C Read &h52, 0, 6, x%()
+  read_id% = ((x(2)*256+x(3))*256+x(4))*256+x(5)
+End Function
+ 
+Sub read_val(xa%, ya%, za%, c%, z%)
+  Local x%(5)
+  I2C Write &h52, 0, 1, &h00
+  Pause 1 'needed for nunchuk response....
+  I2C Read &h52, 0, 6, x%()
+  xa% = 4*x%(2) + ((x%(5) And &b11000000) >> 6)
+  ya% = 4*x%(3) + ((x%(5) And &b00110000) >> 4)
+  za% = 4*x%(4) + ((x%(5) And &b00001100) >> 2)
+  c% = (x%(5) And &b00000010) >> 1
+  z% = x%(5) And &b00000001
+End Sub
+
+Sub mmb4l_gamepad_internal(id%, x%)
+  If x% >= 0 Then
+    x% = Device(Gamepad id%, B)
+    Exit Sub
+  EndIf
+
+  Select Case x%
+    Case ctrl.SOFT_CLOSE
+      Device Gamepad Close id%
+      ctrl.remove_driver("mmb4l_gamepad_" + Str$(id%))
+      Exit Sub
+
+    Case ctrl.CLOSE
+      Device Gamepad Close id%
+      ctrl.remove_driver("mmb4l_gamepad_" + Str$(id%))
+      Exit Sub
+
+    Case ctrl.OPEN
+      Device Gamepad Open id%
+      ctrl.add_driver("mmb4l_gamepad_" + Str$(id%))
+      Exit Sub
+  End Select
+End Sub
+
+' USB Gamepad 1 on MMB4L
+Sub mmb4l_gamepad_1(x%)
+  mmb4l_gamepad_internal(1, x%)
+End Sub
+
+' USB Gamepad 2 on MMB4L
+Sub mmb4l_gamepad_2(x%)
+  mmb4l_gamepad_internal(2, x%)
+End Sub
+
+' USB Gamepad 3 on MMB4L
+Sub mmb4l_gamepad_3(x%)
+  mmb4l_gamepad_internal(3, x%)
+End Sub
+
+' USB Gamepad 4 on MMB4L
+Sub mmb4l_gamepad_4(x%)
+  mmb4l_gamepad_internal(4, x%)
+End Sub
+
 '!if !defined(GAMEMITE)
 
 ctrl.scan_map_data:
@@ -689,10 +839,10 @@ ctrl.scan_map_data:
 Data &h9C92919395009900, &h0060099496989A00, &h0031710000008B00, &h00327761737A0000
 Data &h0033346564786300, &h0035727466762000, &h0036796768626E00, &h003837756A6D0000
 Data &h0039306F696B2C00, &h002D703B6C2F2E00, &h00003D5B00270000, &h000023005D0A0000
-Data &h0008000000005C00, &h0000003734003100, &h001B383635322E30, &h0000392A2D332B9B
+Data &h0008000000005C00, &h0000003734003100, &h001B383635322E30, &h008C392A2D332B9B
 Data &h0000000097000000, &h0000000000000000, &h0000000000008B00, &h0000000000000000
 Data &h0000000000000000, &h0000000000000000, &h0000000000000000, &h0000000000000000
-Data &h0000000000000000, &h0000000000000000, &h0000000000000000, &h0000000000000000
+Data &h0000000000000000, &h00000000002F0000, &h0000000000000000, &h00000000000A0000
 Data &h0000000000000000, &h0000008682008700, &h0000808300817F84, &h0000889D00890000
 
 '!endif ' !defined(GAMEMITE)
